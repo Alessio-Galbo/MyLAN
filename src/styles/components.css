@@ -1,0 +1,77 @@
+/**
+ * Componenti del form: campo codice e bottone primario.
+ */
+.code-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.code-field-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.code-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: 14px;
+  color: var(--text-primary);
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", monospace;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-align: center;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.code-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 4px var(--btn-glow);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--brand-cyan), var(--brand-blue));
+  border: none;
+  border-radius: 14px;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 4px 20px var(--btn-glow);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px var(--btn-glow);
+  filter: brightness(1.08);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}

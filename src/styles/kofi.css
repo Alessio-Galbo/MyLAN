@@ -1,0 +1,37 @@
+/**
+ * Stili dedicati per il pulsante di supporto Ko-fi.
+ */
+.kofi-btn {
+  background: var(--kofi-bg);
+  border: 1px solid var(--kofi-border);
+  color: var(--kofi-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 20px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.kofi-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.kofi-icon {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 480px) {
+  .kofi-label {
+    display: none;
+  }
+  .kofi-btn {
+    padding: 7px 10px;
+  }
+}

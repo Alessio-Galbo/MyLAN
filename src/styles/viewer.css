@@ -1,0 +1,21 @@
+/**
+ * Stili per il visualizzatore a schermo intero delle applicazioni MyLAN.
+ */
+.app-viewer-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+.viewer-iframe {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #ffffff;
+}

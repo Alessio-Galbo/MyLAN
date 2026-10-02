@@ -1,0 +1,77 @@
+/**
+ * Stili per la schermata di sincronizzazione e barra di progresso MyLAN.
+ */
+.sync-progress-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--sync-accent, var(--border-subtle));
+  border-radius: 28px;
+  padding: 36px 28px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  transition: border-color 0.4s ease;
+}
+
+.sync-icon-pulse {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--bg-glass);
+  color: var(--brand-cyan);
+  border: 1px solid var(--sync-accent, var(--border-subtle));
+  animation: sync-pulse 1.8s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.sync-custom-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: contain;
+}
+
+@keyframes sync-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--btn-glow); }
+  50% { transform: scale(1.06); box-shadow: 0 0 16px 4px var(--btn-glow); }
+}
+
+.sync-title { font-size: 1.35rem; font-weight: 800; color: var(--text-primary); }
+.sync-subtitle { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.4; }
+
+.sync-bar-track {
+  width: 100%;
+  height: 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.sync-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--brand-cyan), var(--sync-accent, var(--brand-blue)));
+  border-radius: 20px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 12px var(--brand-cyan);
+}
+
+.sync-meta-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}

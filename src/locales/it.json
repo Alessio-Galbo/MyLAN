@@ -1,0 +1,62 @@
+{
+  "app": {
+    "title": "MyLAN",
+    "subtitle": "La tua LAN personale ovunque, tramite connessione diretta P2P",
+    "tagline": "Accesso diretto peer-to-peer al tuo computer senza porte aperte né cloud",
+    "pwa_pill": "PWA & Dev Trampoline"
+  },
+  "nav": {
+    "lang_toggle": "EN",
+    "lang_title": "Cambia lingua",
+    "theme_toggle": "Cambia tema",
+    "theme_dark": "Tema Scuro",
+    "theme_light": "Tema Chiaro",
+    "support_kofi": "Supporta su Ko-fi",
+    "apps_tab": "Applicazioni",
+    "connect_tab": "Nuovo codice"
+  },
+  "hub": {
+    "title": "Applicazioni collegate",
+    "subtitle": "Accedi direttamente alle web app sincronizzate",
+    "empty": "Nessuna applicazione salvata. Collega la tua prima app con un codice.",
+    "open_btn": "Apri app",
+    "remove_btn": "Dimentica",
+    "last_used": "Ultimo uso",
+    "new_connect": "Collega una nuova applicazione"
+  },
+  "viewer": {
+    "exit": "Chiudi",
+    "back_hub": "Torna a MyLAN",
+    "status_connected": "Canale P2P attivo",
+    "status_reconnecting": "Riconnessione all'host...",
+    "status_offline": "Modalità offline",
+    "reconnect_btn": "Riconnetti"
+  },
+  "sync": {
+    "title": "Sincronizzazione applicazione",
+    "subtitle": "Download dell'interfaccia dal tuo computer tramite P2P...",
+    "discovering": "Rilevamento metadati applicazione...",
+    "default_app_name": "Web Application",
+    "default_app_desc": "Applicazione WebRTC P2P sincronizzata",
+    "ready": "Applicazione pronta!",
+    "status": "Scaricamento file: "
+  },
+  "portal": {
+    "badge": "WebRTC P2P Gateway",
+    "code_label": "Codice di collegamento",
+    "code_placeholder": "es. K7QM-4XRD-P2HW",
+    "connect_btn": "Connettiti",
+    "connecting": "Connessione in corso...",
+    "invalid_code": "Inserisci un codice valido a 12 caratteri",
+    "waiting_approval": "In attesa di approvazione dall'host...",
+    "establishing_p2p": "Apertura canale dati P2P in corso...",
+    "connected": "Collegato in P2P con successo!",
+    "rejected": "La richiesta di connessione è stata rifiutata o è scaduta.",
+    "timeout": "Tempo scaduto per l'apertura del canale P2P.",
+    "retry": "Riprova",
+    "feature_e2e": "Cifratura end-to-end AES-256",
+    "feature_direct": "Nessuna porta aperta sul router",
+    "feature_pwa": "HTTPS per test PWA locali",
+    "powered_by": "Zero-knowledge P2P via WebRTC & WebCrypto"
+  }
+}
