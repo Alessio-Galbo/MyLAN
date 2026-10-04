@@ -4,6 +4,8 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+## [cc7875c] - 2026-10-04 - Atomic updates with content-hash versioned modules
+
 ### Fixed
 - After a publish on GitHub Pages a browser could run old and new MyLAN modules together (Pages lets files be cached
   for 10 minutes) and break with "does not provide an export named ...". Updates are now atomic: every module,
