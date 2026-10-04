@@ -1,0 +1,38 @@
+/**
+ * Stili per il visualizzatore a schermo intero delle applicazioni MyLAN.
+ * Altezza = viewport dinamico (100dvh, fallback 100vh): su Chrome Android in modalità browser 100vh
+ * è il viewport "grande" e la parte bassa dell'app finirebbe sotto la barra di navigazione.
+ */
+.app-viewer-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
+.viewer-iframe {
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  border: none;
+  background: #ffffff;
+}
+
+/* Con il visualizzatore aperto la pagina MyLAN sotto non deve scorrere (niente barre che si nascondono). */
+html.mylan-viewer-open,
+html.mylan-viewer-open body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+html.mylan-viewer-open #app-root {
+  min-height: 0;
+}

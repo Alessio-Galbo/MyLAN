@@ -1,0 +1,77 @@
+/**
+ * Riconnessione autonoma P2P tramite token crittografico di ritorno su canale privato.
+ */
+import { deriveKey } from "../crypto/kdf.js";
+import { deriveTopic } from "../signaling/topics.js";
+import { sealEnvelope, unsealEnvelope } from "../crypto/envelope.js";
+import { postEnvelope, pollEnvelope } from "../signaling/client.js";
+import { createPeer, createFullOffer, applyAnswer } from "./peer.js";
+import { rememberHostIce, hostIceFor } from "./ice-config.js";
+import { waitForChannelsOpen, setActiveChannels } from "./channel.js";
+import { getOrCreateDeviceId } from "./device-id.js";
+import { getDeviceMeta } from "./device-meta.js";
+
+const inFlight = new Map();
+
+/** Riconnessione all'host dell'app "owner" (chiave di sessione); una sola in corso per token. */
+export async function reconnectPeer(reconnectToken, owner = "") {
+  if (inFlight.has(reconnectToken)) return inFlight.get(reconnectToken);
+  const job = (async () => {
+    try {
+      return await executeReconnect(reconnectToken, owner);
+    } finally {
+      inFlight.delete(reconnectToken);
+    }
+  })();
+  inFlight.set(reconnectToken, job);
+  return job;
+}
+
+async function executeReconnect(reconnectToken, owner) {
+  if (!reconnectToken) throw new Error("No reconnect token");
+  const key = await deriveKey(reconnectToken);
+  const offerTopic = await deriveTopic(reconnectToken, "reconnect-offer");
+  const answerTopic = await deriveTopic(reconnectToken, "reconnect-answer");
+
+  const { pc, apiChannel, mediaChannel, waitForIce } = createPeer(hostIceFor(owner));
+  const offerSdp = await createFullOffer(pc, waitForIce);
+  const nonce = Math.random().toString(36).slice(2, 10);
+
+  const payload = {
+    type: "offer",
+    device_id: getOrCreateDeviceId(),
+    sdp: offerSdp,
+    nonce,
+    meta: getDeviceMeta()
+  };
+
+  const sealedOffer = await sealEnvelope(payload, key);
+  const sent = await postEnvelope(offerTopic, sealedOffer);
+  if (!sent) throw new Error("Post failed");
+
+  const sinceSec = Math.floor(Date.now() / 1000) - 5;
+  let targetSdp = "";
+  let targetIce;
+  const sealedAnswer = await pollEnvelope(answerTopic, 20000, undefined, sinceSec, async (msg) => {
+    try {
+      const ans = await unsealEnvelope(msg, key);
+      if (ans?.sdp && (!ans.nonce || ans.nonce === nonce)) {
+        targetSdp = ans.sdp;
+        targetIce = ans.ice;
+        return true;
+      }
+    } catch {}
+    return false;
+  });
+  if (!sealedAnswer || !targetSdp) throw new Error("No valid answer");
+
+  rememberHostIce(owner, targetIce); // l'host puo' aver cambiato o tolto il suo TURN
+  await applyAnswer(pc, targetSdp);
+  await waitForChannelsOpen([apiChannel, mediaChannel], 15000);
+
+  if (!setActiveChannels({ api: apiChannel, media: mediaChannel, owner })) {
+    pc.close();
+    throw new Error("Another app was opened meanwhile");
+  }
+  return apiChannel;
+}

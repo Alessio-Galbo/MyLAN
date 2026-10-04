@@ -1,0 +1,182 @@
+# MyLAN Application Integration Specification
+
+This specification defines the standard discovery protocol, DataChannel wire format, and container bridge interfaces for web applications connecting through the MyLAN WebRTC P2P gateway.
+
+For the overall picture (how the HTTPS container works, what the host must implement for signaling, NAT/CGNAT behaviour, per-app PWA installation, security model and known limits) see [INTEGRATION.md](INTEGRATION.md).
+
+---
+
+## 1. Overview & Container
+
+MyLAN acts as a trusted HTTPS trampoline and peer-to-peer container:
+* The remote web application is executed inside an iframe at `/session/<key>/`, one key per saved app (derived from the app's stable id, `src/loader/session-key.js`).
+* The iframe is **not** an isolated sandbox: it runs on MyLAN's origin. Each app gets its own namespaced Web Storage (`localStorage` / `sessionStorage` keys stored as `mylan-app:<key>:<name>`), which prevents collisions and accidental reads but is not a security boundary (see [INTEGRATION.md §8](INTEGRATION.md#8-security-model)).
+* MyLAN's outer Service Worker (`sw.js`) intercepts all requests under `/session/<key>/` and routes them over the WebRTC DataChannels of that app's host only, through the MyLAN tab that hosts the frame (`src/loader/sw-relay.js`).
+* Static assets (HTML, CSS, JS modules) are automatically discovered and cached into one cache per app, `mylan-session-v3:<key>`, for instant offline loading and hard-refresh resilience. Only `GET` responses outside `/api/` are cached. Removing the app from the Hub deletes its cache, initial page and Web Storage.
+
+---
+
+## 2. Application Discovery & Manifest
+
+During pairing and initial synchronization, MyLAN queries the remote application to display its identity (title, description, icon, theme color) and persist it in the user's App Hub.
+
+### Resolution Priority:
+1. `GET /.well-known/mylan.json` (Recommended dedicated manifest)
+2. `GET /manifest.json` (Standard W3C Web App Manifest)
+3. HTML Fallback (`<title>`, `<meta name="description">`, `<link rel="icon">`)
+
+### Manifest Format Example (`.well-known/mylan.json`):
+```json
+{
+  "name": "My Web Application",
+  "short_name": "WebApp",
+  "description": "Secure self-hosted P2P dashboard",
+  "version": "1.0.0",
+  "theme_color": "#6366f1",
+  "media_paths": ["/files/", "/api/stream/"],
+  "chunked_uploads": true,
+  "icons": [
+    {
+      "src": "/src/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
+```
+
+### Supported Icon Formats:
+* **Binary Images**: PNG, WebP, JPEG, SVG served over DataChannel (automatically converted to data URIs).
+* **Vector SVG Strings**: Raw inline SVG markup `<svg ...>...</svg>` is natively supported for crisp, resolution-independent rendering in the Hub and dynamic tab favicons.
+
+---
+
+## 3. Dual DataChannel Multiplexing
+
+To guarantee responsive UI interactions during heavy media transfers, MyLAN establishes two multiplexed WebRTC DataChannels:
+
+| Channel Label | Reliability | Ordering | Purpose |
+|---|---|---|---|
+| `mylan-api` | Reliable | Ordered | Standard REST/RPC requests (`GET`, `POST`, `PUT`, `DELETE`), JSON APIs, manifests, and scripts. |
+| `mylan-media` | Reliable | Ordered | High-throughput transfers: every request carrying a `Range` header, plus the path prefixes the app lists in `media_paths` of `/.well-known/mylan.json`. |
+
+The host must answer each request on the channel it arrived on.
+
+Channels are negotiated with a default timeout of 30 seconds to support high-latency cellular networks (4G/5G). ICE uses public STUN servers by default (MyLAN ships no TURN relay): gathering collects host and server-reflexive (`typ srflx`) candidates and sends the offer as soon as gathering completes, shortly after the first `srflx` candidate, or after at most 3 seconds. A host app may send its own ICE servers in the optional `ice` field of its encrypted answers (an array of `RTCIceServer` objects: `urls` with `stun:`/`turn:`/`turns:` URLs, optional `username` and `credential`); MyLAN merges them with its defaults for that app from the next connection on and, when a TURN is among them, waits for the first `typ relay` candidate (+600 ms, at most 6 seconds). See INTEGRATION §6. If the DataChannels do not open within 30 seconds, the portal shows that the two networks do not allow a direct connection.
+
+---
+
+## 4. DataChannel Wire Protocol
+
+Requests intercepted by MyLAN's Service Worker are streamed over the appropriate DataChannel.
+
+### 4.1 Client Request Payload (JSON string):
+```json
+{
+  "id": "r_1710000000_1",
+  "method": "GET",
+  "path": "/api/v1/status",
+  "headers": {
+    "accept": "application/json",
+    "x-device-id": "dev_abc123"
+  },
+  "body": ""
+}
+```
+
+* **`body`**: base64 of the **exact** request bytes (JSON, text, `Blob`, files, `FormData` multipart), up to 64 KB. Decode it to bytes, never to text. The same value is also sent as `body_b64` for compatibility with older hosts.
+* **Bodies over 64 KB** (chunked variant), only when the app declares `"chunked_uploads": true` in `/.well-known/mylan.json`: the JSON carries `"body": ""`, `"body_chunked": true` and `"body_size": N`, and is followed on the same channel by binary frames in the format of §4.3 (`0x42` + ID length + `more` flag + ASCII request ID + up to 60 KB of payload). The host concatenates the payloads and handles the request after the frame with `more = 0`.
+* Without the flag, a body over 64 KB is never sent: MyLAN answers the app locally with HTTP `413`.
+
+### 4.2 Host Response Start (Headers):
+```json
+{
+  "id": "r_1710000000_1",
+  "type": "start",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json; charset=utf-8"
+  }
+}
+```
+
+### 4.3 Host Response Chunks:
+Responses can be streamed in chunks up to 64 KB using either:
+1. **Raw Binary Chunks (High performance, recommended for media)**:
+   - Header byte `0x42` ('B') + 1 byte ID length + 1 byte `more` flag (1 or 0) + ASCII request ID + raw bytes.
+2. **JSON Base64 Chunks**:
+   ```json
+   {
+     "id": "r_1710000000_1",
+     "type": "chunk",
+     "data": "<base64_encoded_payload>",
+     "more": false
+   }
+   ```
+
+---
+
+## 5. Container Bridge Protocol (`postMessage`)
+
+Applications running inside the MyLAN iframe can communicate with the MyLAN parent container using `window.parent.postMessage`.
+
+### 5.1 Messages Sent by Child App to MyLAN:
+* **`mylan:register`**: Dynamic app registration and custom branding:
+  ```javascript
+  window.parent.postMessage({
+    type: "mylan:register",
+    meta: {
+      title: "My Dashboard",
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/></svg>'
+    }
+  }, "*");
+  ```
+* **`mylan:exit`**: Cleanly exits the viewer and returns to the MyLAN Hub:
+  ```javascript
+  window.parent.postMessage({ type: "mylan:exit" }, "*");
+  ```
+* **`mylan:request-reconnect`**: Requests background WebRTC reconnection if the host connection drops:
+  ```javascript
+  window.parent.postMessage({ type: "mylan:request-reconnect" }, "*");
+  ```
+* **`mylan:sync-update`**: Informs MyLAN that a new version is available on the host to trigger a bundle re-sync and page reload:
+  ```javascript
+  window.parent.postMessage({ type: "mylan:sync-update" }, "*");
+  ```
+
+### 5.2 Messages Sent by MyLAN to Child App:
+* **`mylan:peer-connected`**: Notifies the embedded app that the P2P WebRTC DataChannel is open and operational.
+* **`mylan:peer-disconnected`**: Notifies the embedded app that P2P connectivity was lost (prompting the app to enter offline/read-only mode).
+
+---
+
+## 6. Frontend Developer Best Practices
+
+1. **Use Relative Paths**: Always use relative URLs (`/api/...` or `./api/...`) instead of hardcoding hostnames (`http://localhost:8080`).
+2. **Detect the MyLAN Container**:
+   ```javascript
+   export function isInsideMyLAN() {
+     return window.self !== window.top || window.location.pathname.includes("/session/");
+   }
+   ```
+3. **Avoid Secondary Service Worker Registration**:
+   When `isInsideMyLAN()` is true, avoid registering a local `/sw.js` (MyLAN already intercepts and caches your session via its own Service Worker).
+4. **Shell Versioning**:
+   Expose your shell version on your root HTML element (e.g. `<html data-shell="v1.0.0">`) to easily compare with your own version endpoint (e.g. `/api/version`) and trigger `mylan:sync-update` on updates.
+
+---
+
+## 7. Dynamic Multi-PWA Installation & Standalone Mode
+
+MyLAN enables each connected web application to be installed on mobile devices (Android/iOS) and desktop as an independent, standalone Progressive Web App:
+
+1. **Dynamic Manifest Synthesis**: When an app is activated, `pwa-manifest.js` synthesizes a dedicated Web App Manifest (`manifest.json?app=<slug>`) populated with the app's real title, theme color, description and PNG icons (purpose `any`). MyLAN's own icons are listed only when the app has no usable icon, so Chrome never prefers them over the app's.
+2. **Binary Icon Caching**: Because Chromium rejects `data:` URIs inside web app manifests, `pwa-icon.js` rasterizes the app icon (data URI or inline SVG) to 192x192 and 512x512 PNGs, stores them in CacheStorage and serves them through `./app-icon.png?app=<slug>&s=<size>&v=<version>`.
+3. **Ordering & single link**: updates are queued by the viewer and applied in order: icons cached, then manifest cached, then the single `<link rel="manifest">` is swapped (stale updates are dropped). The manifest URL carries a version (`manifest.json?app=<slug>&v=<hash>`) so Chrome re-reads it whenever title or icon change.
+4. **Service Worker Interception**: The outer Service Worker (`sw.js` + `sw-manifest.js`) intercepts and serves both `manifest.json?app=<slug>` and `app-icon.png?app=<slug>`.
+5. **Borderless Fullscreen Execution**:
+   - The manifest declares `display: "fullscreen"` and `display_override: ["fullscreen", "standalone"]` for 100% borderless presentation.
+   - When the user launches the installed PWA from their home screen, the browser opens `/?app=<slug>` in standalone/fullscreen mode.
+   - MyLAN suppresses its top navigation bar (`body.is-standalone .top-bar { display: none !important; }`), launching the child application immediately with zero wrapper UI. The viewer is sized on the dynamic viewport (`100dvh`, fallback `100vh`) so in browser mode on mobile the child app gets exactly the visible height and never ends under the browser's bottom bar; the page behind it stops scrolling (`html.mylan-viewer-open`).
+   - The child application automatically reconnects to the host using the saved reconnect token.
+

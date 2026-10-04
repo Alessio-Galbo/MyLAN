@@ -1,0 +1,49 @@
+/**
+ * Palette colori e variabili di design responsive per temi Scuro e Chiaro.
+ */
+:root,
+:root[data-theme="dark"] {
+  --bg-primary: #070a12;
+  --bg-secondary: #0f172a;
+  --bg-card: rgba(15, 23, 42, 0.75);
+  --bg-input: rgba(11, 15, 25, 0.85);
+  --bg-glass: rgba(30, 41, 59, 0.5);
+  --border-subtle: rgba(255, 255, 255, 0.09);
+  --border-focus: #06b6d4;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --brand-cyan: #06b6d4;
+  --brand-teal: #14b8a6;
+  --brand-blue: #3b82f6;
+  --btn-glow: rgba(6, 182, 212, 0.35);
+  --card-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.07);
+  --mesh-1: rgba(6, 182, 212, 0.12);
+  --mesh-2: rgba(59, 130, 246, 0.10);
+  --kofi-bg: rgba(255, 95, 95, 0.15);
+  --kofi-color: #ff6b6b;
+  --kofi-border: rgba(255, 95, 95, 0.3);
+}
+
+:root[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: rgba(255, 255, 255, 0.88);
+  --bg-input: #ffffff;
+  --bg-glass: rgba(241, 245, 249, 0.9);
+  --border-subtle: rgba(15, 23, 42, 0.10);
+  --border-focus: #0891b2;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --brand-cyan: #0891b2;
+  --brand-teal: #0d9488;
+  --brand-blue: #2563eb;
+  --btn-glow: rgba(8, 145, 178, 0.22);
+  --card-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.06);
+  --mesh-1: rgba(8, 145, 178, 0.10);
+  --mesh-2: rgba(37, 99, 235, 0.08);
+  --kofi-bg: #fff1f2;
+  --kofi-color: #e11d48;
+  --kofi-border: #fecdd3;
+}

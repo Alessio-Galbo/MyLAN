@@ -1,0 +1,43 @@
+/**
+ * Stili per le card delle applicazioni salvate nell'Hub MyLAN.
+ */
+.hub-app-card {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+  background: var(--bg-glass); border: 1px solid var(--border-subtle);
+  border-radius: 18px; transition: all 0.2s ease;
+}
+.hub-app-card:hover { border-color: var(--border-focus); transform: translateY(-1px); }
+
+.hub-card-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--bg-glass); color: var(--brand-cyan);
+  overflow: hidden; flex-shrink: 0;
+}
+.hub-card-icon svg { width: 22px; height: 22px; }
+.hub-card-img { width: 100%; height: 100%; object-fit: contain; }
+
+.hub-card-meta {
+  flex: 1; display: flex; flex-direction: column; text-align: left; overflow: hidden;
+}
+.hub-card-title { font-size: 0.98rem; font-weight: 700; color: var(--text-primary); }
+.hub-card-desc {
+  font-size: 0.78rem; color: var(--text-secondary); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; margin: 1px 0;
+}
+.hub-card-date { font-size: 0.74rem; color: var(--text-muted); }
+
+.hub-card-actions { display: flex; align-items: center; gap: 8px; }
+.hub-open-btn {
+  background: var(--brand-cyan); color: #ffffff; border: none; font-size: 0.82rem;
+  font-weight: 700; padding: 6px 14px; border-radius: 12px; cursor: pointer;
+  transition: all 0.2s ease;
+}
+.hub-open-btn:hover { filter: brightness(1.1); }
+
+.hub-remove-btn {
+  display: flex; align-items: center; justify-content: center;
+  background: transparent; border: none; color: var(--text-muted);
+  cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s ease;
+}
+.hub-remove-btn:hover { color: var(--kofi-color); background: var(--kofi-bg); }

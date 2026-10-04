@@ -1,0 +1,62 @@
+/**
+ * Stili per l'Hub / Launcher delle applicazioni collegate in MyLAN.
+ */
+.app-hub-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 28px;
+  padding: 32px 24px;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hub-header {
+  text-align: center;
+}
+
+.hub-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.hub-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.hub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.hub-actions {
+  margin-top: 4px;
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 12px;
+  background: var(--bg-glass);
+  border: 1px dashed var(--border-subtle);
+  border-radius: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--border-focus);
+  color: var(--brand-cyan);
+}

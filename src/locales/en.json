@@ -1,0 +1,63 @@
+{
+  "app": {
+    "title": "MyLAN",
+    "subtitle": "Your personal LAN anywhere, via direct WebRTC P2P connection",
+    "tagline": "Direct peer-to-peer access to your computer with zero open ports or cloud servers",
+    "pwa_pill": "PWA & Dev Trampoline"
+  },
+  "nav": {
+    "lang_toggle": "IT",
+    "lang_title": "Change language",
+    "theme_toggle": "Toggle theme",
+    "theme_dark": "Dark Theme",
+    "theme_light": "Light Theme",
+    "support_kofi": "Support on Ko-fi",
+    "apps_tab": "Applications",
+    "connect_tab": "New Code"
+  },
+  "hub": {
+    "title": "Connected Applications",
+    "subtitle": "Directly launch synchronized web applications",
+    "empty": "No saved applications. Connect your first app using an invite code.",
+    "open_btn": "Launch app",
+    "remove_btn": "Forget",
+    "last_used": "Last used",
+    "new_connect": "Connect a new application"
+  },
+  "viewer": {
+    "exit": "Close",
+    "back_hub": "Back to MyLAN",
+    "status_connected": "P2P channel active",
+    "status_reconnecting": "Reconnecting to host...",
+    "status_offline": "Offline mode",
+    "reconnect_btn": "Reconnect"
+  },
+  "sync": {
+    "title": "Syncing Application",
+    "subtitle": "Downloading interface directly from host via P2P...",
+    "discovering": "Discovering application metadata...",
+    "default_app_name": "Web Application",
+    "default_app_desc": "Synchronized P2P WebRTC Application",
+    "ready": "Application ready!",
+    "status": "Downloading files: "
+  },
+  "portal": {
+    "badge": "WebRTC P2P Gateway",
+    "code_label": "Connection Code",
+    "code_placeholder": "e.g. K7QM-4XRD-P2HW",
+    "connect_btn": "Connect",
+    "connecting": "Connecting...",
+    "invalid_code": "Please enter a valid 12-character code",
+    "waiting_approval": "Waiting for host approval...",
+    "establishing_p2p": "Establishing direct P2P data channel...",
+    "connected": "Directly connected via P2P!",
+    "rejected": "Connection request was rejected or has expired.",
+    "timeout": "Timeout establishing P2P data channel.",
+    "p2p_blocked": "The two networks do not allow a direct (P2P) connection. Try another network, for example Wi-Fi instead of mobile data, or try again later.",
+    "retry": "Retry",
+    "feature_e2e": "End-to-end AES-256 encryption",
+    "feature_direct": "Zero open ports on your router",
+    "feature_pwa": "HTTPS for local PWA testing",
+    "powered_by": "Zero-knowledge P2P via WebRTC & WebCrypto"
+  }
+}
