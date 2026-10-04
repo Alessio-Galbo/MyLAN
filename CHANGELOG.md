@@ -4,6 +4,8 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+## [de94c18] - 2026-10-04 - Cache-first apps, background updates and faster signaling
+
 ### Fixed
 - An app that sent `mylan:sync-update` at every start got stuck in a loop: MyLAN wiped its cache, re-downloaded it and
   reloaded the iframe each time (very slow app, incomplete UI). The update no longer wipes the cache nor reloads the
