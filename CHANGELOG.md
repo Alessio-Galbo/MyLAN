@@ -4,6 +4,8 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+## [fbcd370] - 2026-10-05 - Invite protocol 2, channel request limits and body fixes
+
 ## [699a087] - 2026-10-04 - Start instantly from cache, covers while connecting, sharp PWA icons
 
 ### Changed
