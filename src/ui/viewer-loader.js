@@ -8,7 +8,7 @@ import { hasShellHtml } from "../loader/html-patcher.js";
 import { sessionKeyOf, sessionBaseUrl } from "../loader/session-key.js";
 import { setMediaPaths } from "../loader/sw-channel-selector.js";
 import { setChunkedUploads } from "../loader/channel-body.js";
-import { syncAppUpdate } from "./viewer-updater.js";
+import { checkAppUpdate } from "./viewer-updater.js";
 
 const reconnecting = new Set();
 
@@ -33,9 +33,7 @@ export async function initBackgroundReconnect(iframe, appData) {
 
   try {
     await reconnectPeer(appData.reconnectToken, appKey);
-    if (!hasShellHtml(appKey)) {
-      syncAppUpdate(iframe, appData);
-    } else {
+    if (hasShellHtml(appKey)) {
       try {
         const isFallback = !!iframe?.contentDocument?.querySelector?.('meta[name="mylan-fallback"]');
         const docText = iframe?.contentDocument?.body?.innerText || "";
@@ -45,6 +43,8 @@ export async function initBackgroundReconnect(iframe, appData) {
         iframe?.contentWindow?.postMessage({ type: "mylan:peer-connected" }, "*");
       } catch {}
     }
+    checkAppUpdate(iframe, appData); // in background: l'app resta quella in cache finche' non e' pronta la nuova
+
   } catch (err) {
     console.warn("[MyLAN] Background reconnect failed:", err);
     try { iframe?.contentWindow?.postMessage({ type: "mylan:peer-disconnected" }, "*"); } catch {}

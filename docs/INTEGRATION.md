@@ -67,6 +67,7 @@ Fields read by MyLAN (`src/loader/app-metadata.js`):
 | `icons[]` | Used when `icon` is missing: first `.svg`, else a `192` size, else the first entry |
 | `media_paths[]` | Optional path prefixes (each starting with `/`) to route over the `mylan-media` channel |
 | `chunked_uploads` | `true` if your host accepts request bodies over 64 KB sent as binary frames (APP_SPEC §4.1); without it such requests get a local `413` |
+| `update_check` | Optional `{ "url": "/api/version", "field": "shell" }`: a GET path on your host (JSON) and the field holding the version of your frontend files. MyLAN compares it with the cached copy after each (re)connection; without it MyLAN compares a hash of your root HTML (§4 "Updates") |
 | `version` | Informational |
 
 Example (`/.well-known/mylan.json`, served by your host, no authentication required):
@@ -80,7 +81,8 @@ Example (`/.well-known/mylan.json`, served by your host, no authentication requi
   "theme_color": "#6366f1",
   "icon": "/icons/example-192.png",
   "media_paths": ["/files/", "/api/stream/"],
-  "chunked_uploads": true
+  "chunked_uploads": true,
+  "update_check": { "url": "/api/version", "field": "shell" }
 }
 ```
 
@@ -113,13 +115,23 @@ running it can also update its title and icon at any time with the `mylan:regist
   `img.src`, `audio/video.src` and `link.href` so they stay under `/session/<key>/`. Your own
   `navigator.serviceWorker.register` is replaced by a no-op (MyLAN's Service Worker already serves you). The patched root
   HTML is kept so the app opens instantly next time, even before the P2P link is back.
-* **Initial download** (`src/loader/app-downloader.js`): `/`, then every `<link href>` and `<script src>` found in it.
-  Other files (dynamic imports, images, fonts) are fetched on first use and then cached.
+* **Initial download** (`src/loader/app-downloader.js`): `/`, then every `<link href>` and `<script src>` found in it,
+  six at a time (`src/loader/app-updater.js`). Other files (dynamic imports, images, fonts) are fetched on first use and
+  then cached.
+* **Cache first**: a saved app always opens from its cache (`GET` outside `/api/`), before and independently of the P2P
+  link. Requests that need the host wait for the channel only while a reconnection is in progress (at most 15 s); with
+  the host off or no reconnection running they fail at once with `503`, so your app can show its offline state.
 * **Viewer** (`src/ui/app-viewer.js`): full-screen iframe sized on the dynamic viewport (`100dvh`, fallback `100vh`)
   so it never ends under a mobile browser's bottom bar; the page behind it stops scrolling. The iframe is allowed
   `autoplay; fullscreen; microphone; camera`.
-* **Updates**: send `mylan:sync-update` when your app detects a new version; MyLAN re-downloads the bundle and
-  reloads the iframe.
+* **Updates** (`src/ui/viewer-updater.js`): after each (re)connection MyLAN reads your version (`update_check`, or a
+  hash of `/`). If it changed, every file already in the app's cache is downloaded again in the background (six at a
+  time) into a staging cache and copied over the live cache only when all succeeded: the app keeps working from the old
+  copy meanwhile, and a failed update leaves it untouched. Then your frame receives `mylan:app-updated`: reload when it
+  suits you (e.g. not during playback); without a handler the new version shows at the next open. `mylan:sync-update`
+  asks for the same check at any time (e.g. a "check for updates" button) and is answered with
+  `mylan:update-result` `{changed: true | false | null}` (`null`: host not reachable now). Never send it on every
+  start-up: MyLAN already checks by itself.
 
 What your frontend should do:
 
@@ -145,7 +157,9 @@ MyLAN ships only the browser side. Your host needs a small companion (any langua
    using the reconnect token in place of the code; tokens longer than 16 characters are not normalized).
 4. **Envelope**: base64url (no padding) of `IV (12 bytes) || AES-GCM ciphertext+tag` of a JSON object; keep it under 4 KB.
 5. **Signaling relay**: `POST https://ntfy.sh/<topic>` with the envelope as body; read with
-   `GET https://ntfy.sh/<topic>/json?poll=1&since=...`.
+   `GET https://ntfy.sh/<topic>/json?since=...` (MyLAN keeps this stream open, so your answer is read as soon as it is
+   published; `poll=1` also works for the host). Pause between failed reads: ntfy answers `429` to clients that retry
+   without delay.
 6. **Pairing**: read the offer `{type:"offer", device_id, sdp, meta}`, show the user who is asking (`meta` carries
    OS, browser, device type, screen), and on approval answer `{type:"answer", sdp, reconnect_token, ice?}`; on refusal answer
    `{type:"rejected"}` (any answer without `sdp` is treated as rejected). The browser waits up to 180 s for approval.

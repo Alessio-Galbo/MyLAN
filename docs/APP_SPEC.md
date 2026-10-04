@@ -35,6 +35,7 @@ During pairing and initial synchronization, MyLAN queries the remote application
   "theme_color": "#6366f1",
   "media_paths": ["/files/", "/api/stream/"],
   "chunked_uploads": true,
+  "update_check": { "url": "/api/version", "field": "shell" },
   "icons": [
     {
       "src": "/src/icons/icon-192.png",
@@ -139,7 +140,9 @@ Applications running inside the MyLAN iframe can communicate with the MyLAN pare
   ```javascript
   window.parent.postMessage({ type: "mylan:request-reconnect" }, "*");
   ```
-* **`mylan:sync-update`**: Informs MyLAN that a new version is available on the host to trigger a bundle re-sync and page reload:
+* **`mylan:sync-update`**: Asks MyLAN to compare the host version with the cached copy now (e.g. a "check for
+  updates" button). MyLAN already does this after every (re)connection, so do not send it at start-up. Answered with
+  `mylan:update-result`; if the version changed MyLAN refreshes the cache in the background and sends `mylan:app-updated`:
   ```javascript
   window.parent.postMessage({ type: "mylan:sync-update" }, "*");
   ```
@@ -147,6 +150,10 @@ Applications running inside the MyLAN iframe can communicate with the MyLAN pare
 ### 5.2 Messages Sent by MyLAN to Child App:
 * **`mylan:peer-connected`**: Notifies the embedded app that the P2P WebRTC DataChannel is open and operational.
 * **`mylan:peer-disconnected`**: Notifies the embedded app that P2P connectivity was lost (prompting the app to enter offline/read-only mode).
+* **`mylan:app-updated`**: The cached copy of the app was replaced with the host's new version (all files downloaded
+  in the background). Reload when convenient; the iframe is never reloaded by MyLAN.
+* **`mylan:update-result`** `{ changed }`: answer to `mylan:sync-update`: `true` updated (then `mylan:app-updated`),
+  `false` already current, `null` host not reachable now.
 
 ---
 
@@ -162,7 +169,9 @@ Applications running inside the MyLAN iframe can communicate with the MyLAN pare
 3. **Avoid Secondary Service Worker Registration**:
    When `isInsideMyLAN()` is true, avoid registering a local `/sw.js` (MyLAN already intercepts and caches your session via its own Service Worker).
 4. **Shell Versioning**:
-   Expose your shell version on your root HTML element (e.g. `<html data-shell="v1.0.0">`) to easily compare with your own version endpoint (e.g. `/api/version`) and trigger `mylan:sync-update` on updates.
+   Declare `update_check` in `/.well-known/mylan.json` (the endpoint and field that carry your frontend version) and
+   handle `mylan:app-updated`. Do not compare against a version written by hand in your HTML: if it is not bumped with
+   every release, the app asks for an update at every start (this caused a re-download loop before MyLAN 2026-10-04).
 
 ---
 

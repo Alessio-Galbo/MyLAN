@@ -6,6 +6,7 @@ import { SHELL_KEY_PREFIX } from "../loader/html-patcher.js";
 import { MANIFEST_CACHE } from "../ui/pwa-icon.js";
 import { getAppSlug } from "../ui/viewer-meta.js";
 import { rememberHostIce } from "../webrtc/ice-config.js";
+import { forgetVersion, STAGING_PREFIX } from "../loader/app-updater.js";
 
 const MIGRATED_KEY = "mylan_storage_ns_v1";
 
@@ -23,11 +24,13 @@ export async function purgeAppData(app) {
   try {
     localStorage.removeItem(SHELL_KEY_PREFIX + appKey);
     rememberHostIce(appKey, null); // dimentica anche i server ICE (TURN) mandati dall'host dell'app
+    forgetVersion(appKey);
     keysOf(localStorage).filter((k) => k.startsWith(prefix)).forEach((k) => localStorage.removeItem(k));
     keysOf(sessionStorage).filter((k) => k.startsWith(prefix)).forEach((k) => sessionStorage.removeItem(k));
   } catch {}
   try {
     await caches.delete(sessionCacheName(appKey));
+    await caches.delete(STAGING_PREFIX + appKey);
     const slug = getAppSlug(app);
     const cache = await caches.open(MANIFEST_CACHE);
     for (const req of await cache.keys()) {

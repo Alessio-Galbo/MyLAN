@@ -4,6 +4,7 @@
  * percorsi che l'app dichiara in "media_paths" del suo /.well-known/mylan.json. Tutto il resto va su "mylan-api".
  */
 import { getApiChannel, getMediaChannel, getActiveChannel, getChannelOwner } from "../webrtc/channel.js";
+import { isReconnecting } from "../webrtc/reconnect.js";
 
 let mediaPaths = [];
 
@@ -24,11 +25,14 @@ export function selectChannelForPath(path, headers = null, owner = "") {
     : (getApiChannel() || getActiveChannel());
 }
 
+// Attende il canale solo mentre una riconnessione e' in corso (dopo 300 ms di margine per farla partire): con l'host
+// spento o senza token la richiesta fallisce subito (503) e l'app mostra il suo stato offline, invece di 15 s di attesa.
 export async function waitForChannel(path, maxWaitMs = 15000, headers = null, owner = "") {
-  const deadline = Date.now() + maxWaitMs;
+  const start = Date.now(), deadline = start + maxWaitMs;
   while (Date.now() < deadline) {
     const ch = selectChannelForPath(path, headers, owner);
     if (ch && ch.readyState === "open") return ch;
+    if (!isReconnecting() && Date.now() - start > 300) return null;
     await new Promise((r) => setTimeout(r, 120));
   }
   return null;

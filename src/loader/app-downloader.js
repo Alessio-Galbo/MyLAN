@@ -8,6 +8,7 @@ import { setMediaPaths } from "./sw-channel-selector.js";
 import { setChunkedUploads } from "./channel-body.js";
 import { buildPatchedHtmlString, saveShellHtml } from "./html-patcher.js";
 import { sessionBaseUrl, sessionCacheName } from "./session-key.js";
+import { refreshCachedFiles, hostVersion, storeVersion } from "./app-updater.js";
 
 function extractAssets(html) {
   const assets = new Set();
@@ -23,10 +24,15 @@ function extractAssets(html) {
   return Array.from(assets);
 }
 
-/** Scarica il pacchetto dell'app "appKey" nella sua cache: le altre app salvate non vengono toccate. */
-export async function downloadAppBundle(channel, appKey, onProgress, onMetadata) {
+/**
+ * Scarica il pacchetto dell'app "appKey" nella sua cache (le altre app non vengono toccate): pagina iniziale, metadati,
+ * poi i file citati dalla pagina IN PARALLELO (prima uno alla volta: ~70 file x un RTT del canale). fresh: prima
+ * installazione (cache svuotata); altrimenti aggiornamento, e la cache si sostituisce solo a scaricamento riuscito.
+ */
+export async function downloadAppBundle(channel, appKey, onProgress, onMetadata, fresh = true) {
   onProgress(5, t("sync.discovering"));
   const indexResp = await sendChannelRequest(channel, "/");
+  if (!indexResp.ok) throw new Error("HTTP " + indexResp.status);
   const htmlText = await indexResp.text();
 
   const metadata = await fetchAppMetadata(channel, htmlText);
@@ -34,32 +40,19 @@ export async function downloadAppBundle(channel, appKey, onProgress, onMetadata)
   setChunkedUploads(metadata.chunkedUploads);
   if (onMetadata) onMetadata(metadata);
 
-  const assetPaths = extractAssets(htmlText);
-  await caches.delete(sessionCacheName(appKey));
-  const cache = await caches.open(sessionCacheName(appKey));
+  const assetPaths = extractAssets(htmlText).map((p) => (p.startsWith("/") ? p : "/" + p));
+  if (fresh) await caches.delete(sessionCacheName(appKey));
+  await refreshCachedFiles(channel, appKey, assetPaths,
+    (i, n) => onProgress(Math.round(15 + (i / n) * 80), i + " / " + n), !fresh);
 
   const baseSessionUrl = sessionBaseUrl(appKey);
   const patchedHtml = buildPatchedHtmlString(htmlText, appKey);
   saveShellHtml(patchedHtml, appKey);
-
+  const cache = await caches.open(sessionCacheName(appKey));
   const htmlHeaders = { "Content-Type": "text/html; charset=utf-8" };
   await cache.put(new Request(baseSessionUrl), new Response(patchedHtml, { headers: htmlHeaders }));
   await cache.put(new Request(baseSessionUrl + "index.html"), new Response(patchedHtml, { headers: htmlHeaders }));
-
-  const total = assetPaths.length;
-  for (let i = 0; i < total; i++) {
-    const rawPath = assetPaths[i];
-    const cleanPath = rawPath.startsWith("/") ? rawPath : "/" + rawPath;
-    onProgress(Math.round(15 + (i / (total || 1)) * 80), (i + 1) + " / " + total);
-
-    try {
-      const resp = await sendChannelRequest(channel, cleanPath);
-      const targetUrl = new URL(cleanPath.replace(/^\//, ""), baseSessionUrl).href;
-      await cache.put(new Request(targetUrl), resp.clone());
-    } catch {
-      // Ignora asset secondari non bloccanti
-    }
-  }
+  storeVersion(appKey, await hostVersion(channel, metadata.updateCheck, htmlText));
 
   onProgress(100, t("sync.ready"));
   return { ready: true, metadata };

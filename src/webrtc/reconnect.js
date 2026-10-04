@@ -13,6 +13,9 @@ import { getDeviceMeta } from "./device-meta.js";
 
 const inFlight = new Map();
 
+/** Vero mentre una riconnessione e' in corso (src/loader/sw-channel-selector.js aspetta il canale solo allora). */
+export const isReconnecting = () => inFlight.size > 0;
+
 /** Riconnessione all'host dell'app "owner" (chiave di sessione); una sola in corso per token. */
 export async function reconnectPeer(reconnectToken, owner = "") {
   if (inFlight.has(reconnectToken)) return inFlight.get(reconnectToken);

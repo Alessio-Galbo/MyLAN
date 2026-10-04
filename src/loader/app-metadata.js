@@ -72,5 +72,8 @@ export async function fetchAppMetadata(channel, htmlText = "") {
     ? manifest.media_paths.filter((p) => typeof p === "string" && p.startsWith("/")).slice(0, 20)
     : [];
   const chunkedUploads = manifest?.chunked_uploads === true;
-  return { name, description, themeColor, icon, mediaPaths, chunkedUploads };
+  const uc = manifest?.update_check;  // {url, field}: dove l'host dice la versione dell'app (app-updater.js)
+  const updateCheck = typeof uc?.url === "string" && uc.url.startsWith("/")
+    ? { url: uc.url, field: typeof uc.field === "string" ? uc.field : "version" } : null;
+  return { name, description, themeColor, icon, mediaPaths, chunkedUploads, updateCheck };
 }

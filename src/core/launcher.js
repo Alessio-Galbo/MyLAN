@@ -33,7 +33,8 @@ export async function connectAndSyncApp(code, statusCard, container, onReady, on
       icon: res?.metadata?.icon || "",
       themeColor: res?.metadata?.themeColor || "",
       mediaPaths: res?.metadata?.mediaPaths || [],
-      chunkedUploads: Boolean(res?.metadata?.chunkedUploads)
+      chunkedUploads: Boolean(res?.metadata?.chunkedUploads),
+      updateCheck: res?.metadata?.updateCheck || null
     };
     saveApp(appData);
     onReady(appData);

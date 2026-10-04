@@ -26,6 +26,7 @@ export function saveApp(app) {
     code: app.code || existing?.code || "",
     reconnectToken: app.reconnectToken || existing?.reconnectToken || "",
     mediaPaths: Array.isArray(app.mediaPaths) ? app.mediaPaths : (existing?.mediaPaths || []),
+    updateCheck: app.updateCheck !== undefined ? app.updateCheck : (existing?.updateCheck || null),
     chunkedUploads: typeof app.chunkedUploads === "boolean" ? app.chunkedUploads : Boolean(existing?.chunkedUploads),
     lastUsed: Date.now(),
     autoLaunch: Boolean(app.autoLaunch)

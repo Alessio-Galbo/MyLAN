@@ -4,6 +4,26 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+### Fixed
+- An app that sent `mylan:sync-update` at every start got stuck in a loop: MyLAN wiped its cache, re-downloaded it and
+  reloaded the iframe each time (very slow app, incomplete UI). The update no longer wipes the cache nor reloads the
+  iframe; it runs once per app and only when the version changed.
+- With the app's host offline, requests no longer wait 15 s for a channel: unless a reconnection is in progress they fail
+  at once, so a cached app renders immediately and can show its own offline state.
+
+### Added
+- Optional `update_check` {url, field} in the app's `/.well-known/mylan.json`: after each (re)connection MyLAN compares
+  the cached copy with the host's version and refreshes the cached files in the background (staging cache, swapped in
+  only when every file arrived), then sends `mylan:app-updated`; a manual check gets `mylan:update-result`. Without the
+  field a fingerprint of the initial page is compared.
+
+### Changed
+- First download of an app is parallel (6 files at a time, about 2.5x faster on a mobile link).
+- The host's answer on the signaling relay is read by streaming instead of polling every 2.5 s (up to 2.5 s saved per
+  connection).
+- Cache first: a saved app opens from its cache before and independently of the channel.
+- Removing an app also deletes its staging cache and remembered version.
+
 ## [Initial commit] fa73e55 - 2026-10-04
 
 State of MyLAN at the history reset (summary of the work included in that commit).

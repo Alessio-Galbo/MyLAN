@@ -3,7 +3,7 @@
  */
 import { saveApp } from "../storage/app-registry.js";
 import { initBackgroundReconnect, prepareAppSession } from "./viewer-loader.js";
-import { syncAppUpdate } from "./viewer-updater.js";
+import { answerUpdateRequest } from "./viewer-updater.js";
 import { getAppSlug, setFavicon, restoreFavicon } from "./viewer-meta.js";
 import { applyAppManifest, restoreDefaultManifest } from "./pwa-manifest.js";
 
@@ -57,7 +57,7 @@ export function renderAppViewer(container, appData, onExit) {
     } else if (evt.data?.type === "mylan:request-reconnect") {
       initBackgroundReconnect(iframe, appData);
     } else if (evt.data?.type === "mylan:sync-update") {
-      syncAppUpdate(iframe, appData);
+      answerUpdateRequest(iframe, appData);
     } else if (evt.data?.type === "mylan:register" && evt.data.meta) {
       const meta = evt.data.meta;
       if (meta.title) appData.title = meta.title;
