@@ -4,6 +4,8 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+## [77ec8c0] - 2026-10-04 - Repair apps that fail to start from a mixed cache
+
 ### Fixed
 - An app whose cached copy mixed files of two versions died at start (e.g. "does not provide an export named ...") and
   stayed dead. MyLAN now repairs it by itself: the injected script reports start-up failures (`mylan:app-boot-error`,
