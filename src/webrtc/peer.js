@@ -1,7 +1,7 @@
 /**
  * Gestione della connessione RTCPeerConnection e raccolta candidati ICE lato browser.
  */
-import { buildIceConfig, hasTurn } from "./ice-config.js?v=76b805b937bb";
+import { buildIceConfig, hasTurn } from "./ice-config.js?v=aa3afb9e1dd9";
 
 export function createPeer(hostIce = null) {
   const config = buildIceConfig(hostIce);

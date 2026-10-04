@@ -23,6 +23,8 @@ export function saveApp(app) {
     description: app.description || existing?.description || "",
     icon: app.icon || existing?.icon || "",
     themeColor: app.themeColor || existing?.themeColor || "",
+    backgroundColor: app.backgroundColor || existing?.backgroundColor || "",
+    icons: Array.isArray(app.icons) ? app.icons : existing?.icons, // icone della PWA installata (src/loader/app-icons.js)
     code: app.code || existing?.code || "",
     reconnectToken: app.reconnectToken || existing?.reconnectToken || "",
     mediaPaths: Array.isArray(app.mediaPaths) ? app.mediaPaths : (existing?.mediaPaths || []),

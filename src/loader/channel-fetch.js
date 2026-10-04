@@ -1,9 +1,9 @@
 /**
  * Adattatore Fetch su WebRTC DataChannel per MyLAN.
  */
-import { getOrCreateDeviceId } from "../webrtc/device-id.js?v=76b805b937bb";
-import { unpackBinaryChunk } from "./channel-binary.js?v=76b805b937bb";
-import { sendRequestWithBody } from "./channel-body.js?v=76b805b937bb";
+import { getOrCreateDeviceId } from "../webrtc/device-id.js?v=aa3afb9e1dd9";
+import { unpackBinaryChunk } from "./channel-binary.js?v=aa3afb9e1dd9";
+import { sendRequestWithBody } from "./channel-body.js?v=aa3afb9e1dd9";
 
 let reqCounter = 0;
 

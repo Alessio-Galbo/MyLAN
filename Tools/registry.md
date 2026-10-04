@@ -5,8 +5,8 @@ Questo registro documenta gli script Python di supporto e manutenzione per il re
 ---
 
 ## 1. `generate_icons.py`
-- **Scopo:** Genera le icone PNG ufficiali (192x192 e 512x512) conformi alle specifiche W3C PWA per abilitare l'installazione standalone borderless dell'applicazione su desktop e mobile.
-- **Output:** Salva i file `src/icons/icon-192.png` e `src/icons/icon-512.png`.
+- **Scopo:** Genera le icone PNG ufficiali (192x192 e 512x512, "any" con angoli arrotondati e "maskable" a sfondo pieno con il disegno nell'80% centrale) conformi alle specifiche W3C PWA per abilitare l'installazione standalone borderless dell'applicazione su desktop e mobile.
+- **Output:** Salva i file `src/icons/icon-192.png`, `icon-512.png`, `icon-maskable-192.png` e `icon-maskable-512.png`.
 - **Esecuzione:** `python Tools/generate_icons.py`
 
 ---
@@ -18,11 +18,11 @@ Questo registro documenta gli script Python di supporto e manutenzione per il re
 ---
 
 ## 3. `stamp.mjs` (+ `stamp-rules.mjs`)
-- **Scopo:** Rende atomico l'aggiornamento di MyLAN dopo una pubblicazione su GitHub Pages (file in cache 10 minuti nel browser). Calcola la versione come hash dei file pubblicati (stampi esclusi, fine riga normalizzati) e scrive `?v=<versione>` su tutti gli import relativi, sui fogli di stile e sullo script di `index.html`, sul `fetch` dei testi (`src/core/i18n.js`), sulla versione di riserva di `src/boot.js` e in `version.json`. Il Service Worker ha una versione sua (`sw.js` + i suoi `importScripts`): si reinstalla solo se cambia il suo codice. Nessun numero da aumentare a mano.
+- **Scopo:** Rende atomico l'aggiornamento di MyLAN dopo una pubblicazione su GitHub Pages (file in cache 10 minuti nel browser). Calcola la versione come hash dei file pubblicati (stampi esclusi, fine riga normalizzati) e scrive `?v=<versione>` (e in `version.json` l'elenco `files` che il Service Worker scarica prima di passare a una nuova pubblicazione) su tutti gli import relativi, sui fogli di stile e sullo script di `index.html`, sul `fetch` dei testi (`src/core/i18n.js`), sulla versione di riserva di `src/boot.js` e in `version.json`. Il Service Worker ha una versione sua (`sw.js` + i suoi `importScripts`): si reinstalla solo se cambia il suo codice. Nessun numero da aumentare a mano.
 - **Esecuzione:** `node Tools/stamp.mjs` prima di ogni pubblicazione; `node Tools/stamp.mjs --check` esce con 1 se un timbro manca, e' vecchio o punta a un file che non esiste.
 
 ---
 
 ## 4. `test_atomic_update.mjs` (+ `atomic_update_fixture.mjs`)
-- **Scopo:** Prova in Chrome headless che un aggiornamento non mescola mai due versioni: pubblica una copia "vecchia" di MyLAN su un server che si comporta come GitHub Pages (query ignorata, `max-age=600`, ETag/304), la apre, pubblica una copia "nuova" sullo stesso indirizzo (export diverso in `src/core/theme.js`) e riapre con `index.html` vecchio ancora in cache e un modulo gia' scaduto. Controlla: parte la nuova versione senza errori, tutti i moduli e i fogli di stile portano `?v=<nuova versione>`, `version.json` letto senza cache, nuovo Service Worker con i suoi `importScripts`. `--no-stamp` rifa' la prova senza timbri e deve riprodurre il guasto ("does not provide an export named ...").
+- **Scopo:** Prova in Chrome headless che gli aggiornamenti di MyLAN non mescolano mai due versioni, su un server che si comporta come GitHub Pages (query ignorata, `max-age=600`, ETag/304) con tre pubblicazioni finte ("old", "new", "newer": export diverso in `src/core/theme.js`). A) senza Service Worker: `index.html` vecchio in cache e un modulo scaduto -> parte la nuova versione intera (`version.json`). B) con il Service Worker (`src/loader/sw-shell.js`): il lancio dopo la pubblicazione parte subito dalla cache con la versione vecchia intera, quello dopo con la nuova senza chiedere file alla rete (scaricata tutta in background); un modulo tolto dalla cache con il server gia' su un'altra versione viene rifiutato (503) e `src/boot.js` riparte con la versione pubblicata. `--no-stamp` rifa' A senza timbri e deve riprodurre il guasto ("does not provide an export named ...").
 - **Esecuzione:** `node Tools/test_atomic_update.mjs [--no-stamp] [--port=18531] [--cdp=9631]`; usa `.claude/skills/headless-chrome-cdp/scripts/cdp.mjs` (o `CDP_LIB=<percorso di cdp.mjs>`). Copie temporanee in `%TEMP%`, cancellate alla fine.

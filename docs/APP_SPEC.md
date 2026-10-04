@@ -39,15 +39,24 @@ During pairing and initial synchronization, MyLAN queries the remote application
   "runtime_cache": [
     { "prefix": "/api/covers/", "strategy": "stale-while-revalidate", "keep_params": ["size", "v"], "version_param": "v" }
   ],
+  "background_color": "#0b0f19",
   "icons": [
-    {
-      "src": "/src/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    }
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
 ```
+
+### Recommended icon set (installed app)
+Declare in `icons` at least **192 and 512 px, both `any` and `maskable`** (PNG, square), as above. When the app is
+installed from MyLAN (`?app=<slug>`), MyLAN downloads every declared icon over the DataChannel (at most 8, 1 MB each),
+keeps it in its manifest cache and lists all of them, with sizes and purpose, in the installed app's manifest:
+Android builds the splash screen from the largest icon and the home-screen icon from the `maskable` one (full-bleed
+background, content inside the central 80%). `background_color` (splash background) and `theme_color` come from the
+app too. If the app declares no `any` icon of 512 px, MyLAN upscales the largest one to 512 on a canvas: only a
+fallback, visibly blurred on the splash screen. Apps saved before this read their icons once at the next connection.
 
 ### 2.1 `runtime_cache` (optional)
 Array (at most 10) of rules for `GET` resources that MyLAN may keep for offline use, also under `/api/`:
@@ -62,7 +71,7 @@ Array (at most 10) of rules for `GET` resources that MyLAN may keep for offline 
 | `keep_params` | Query parameters that form the cache key (others are ignored); without it the full URL is the key |
 | `version_param` | A URL with this parameter is immutable (served cache-first); a new value replaces the other saved values of the same resource; with the host unreachable and no exact copy, another saved value is served |
 
-Only `200` responses are kept (never `Range` requests or MyLAN fallbacks). With the host unreachable a saved entry is answered immediately; an entry never seen gets `503`. Rules not declared any more are purged at the next install/update.
+Only `200` responses are kept (never `Range` requests or MyLAN fallbacks). With the host unreachable a saved entry is answered immediately; an entry never seen gets `503`. While the app's channel is not open yet (launch, reconnection in progress, host off) `cache-first` and `stale-while-revalidate` entries never wait for it: the exact entry, or else another saved value of the same resource (other `version_param` or `keep_params` values), is answered at once, and the exact one is fetched and saved in the background once the channel opens. Only `network-first` waits, at most `timeout_ms`. Rules not declared any more are purged at the next install/update.
 
 **Quota guard.** There is no default number of entries. After a write MyLAN checks the storage estimate of its origin
 (`navigator.storage.estimate()`, at most once a minute): only when usage is above 80% of the quota it removes the

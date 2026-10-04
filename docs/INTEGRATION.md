@@ -63,8 +63,9 @@ Fields read by MyLAN (`src/loader/app-metadata.js`):
 | `name` (or `short_name`) | Title in the Hub, tab title, installed PWA name |
 | `description` | Hub card, installed PWA description |
 | `theme_color` | Installed PWA theme color |
-| `icon` | One icon: a path on your host, a `data:` URI or raw inline `<svg ...>` markup |
-| `icons[]` | Used when `icon` is missing: first `.svg`, else a `192` size, else the first entry |
+| `background_color` | Installed PWA splash-screen background |
+| `icon` | One icon for the Hub and the tab: a path on your host, a `data:` URI or raw inline `<svg ...>` markup |
+| `icons[]` | All of them (sizes and `purpose`) go into the installed PWA's manifest: declare 192 and 512 px, `any` and `maskable` (APP_SPEC §2 "Recommended icon set"). For the Hub, when `icon` is missing: first `.svg`, else a `192` size, else the first entry |
 | `media_paths[]` | Optional path prefixes (each starting with `/`) to route over the `mylan-media` channel |
 | `chunked_uploads` | `true` if your host accepts request bodies over 64 KB sent as binary frames (APP_SPEC §4.1); without it such requests get a local `413` |
 | `update_check` | Optional `{ "url": "/api/version", "field": "shell" }`: a GET path on your host (JSON) and the field holding the version of your frontend files. MyLAN compares it with the cached copy after each (re)connection; without it MyLAN compares a hash of your root HTML (§4 "Updates") |

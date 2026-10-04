@@ -52,3 +52,12 @@ self.addEventListener("message", (e) => {
     try { e.source.postMessage({ type: "mylan:whoami", id: e.source.id }); } catch {}
   }
 });
+
+/** Il canale dell'app e' aperto in una scheda MyLAN? Senza (connessione in corso, host spento) chi ha una copia in
+ * cache non aspetta (src/loader/sw-runtime-cache.js). */
+async function relayChannelOpen(appKey, frameId) {
+  const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+  const candidates = all.filter((c) => !c.url.includes("/session/"));
+  const scores = await Promise.all(candidates.map((c) => probeRelay(c, appKey, frameId)));
+  return scores.some((s) => s >= 0 && (s & 2) !== 0);
+}

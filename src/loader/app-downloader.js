@@ -1,15 +1,17 @@
 /**
  * Downloader P2P degli asset dell'applicazione e archiviazione in Cache API.
  */
-import { t } from "../core/i18n.js?v=76b805b937bb";
-import { sendChannelRequest } from "./channel-fetch.js?v=76b805b937bb";
-import { fetchAppMetadata } from "./app-metadata.js?v=76b805b937bb";
-import { setMediaPaths } from "./sw-channel-selector.js?v=76b805b937bb";
-import { setChunkedUploads } from "./channel-body.js?v=76b805b937bb";
-import { buildPatchedHtmlString, saveShellHtml } from "./html-patcher.js?v=76b805b937bb";
-import { sessionBaseUrl, sessionCacheName } from "./session-key.js?v=76b805b937bb";
-import { refreshCachedFiles, hostVersion, storeVersion } from "./app-updater.js?v=76b805b937bb";
-import { saveRuntimeRules } from "./runtime-rules.js?v=76b805b937bb";
+import { t } from "../core/i18n.js?v=aa3afb9e1dd9";
+import { sendChannelRequest } from "./channel-fetch.js?v=aa3afb9e1dd9";
+import { fetchAppMetadata } from "./app-metadata.js?v=aa3afb9e1dd9";
+import { setMediaPaths } from "./sw-channel-selector.js?v=aa3afb9e1dd9";
+import { setChunkedUploads } from "./channel-body.js?v=aa3afb9e1dd9";
+import { buildPatchedHtmlString, saveShellHtml } from "./html-patcher.js?v=aa3afb9e1dd9";
+import { sessionBaseUrl, sessionCacheName } from "./session-key.js?v=aa3afb9e1dd9";
+import { refreshCachedFiles, hostVersion, storeVersion } from "./app-updater.js?v=aa3afb9e1dd9";
+import { saveRuntimeRules } from "./runtime-rules.js?v=aa3afb9e1dd9";
+import { cacheDeclaredIcons } from "./app-icons.js?v=aa3afb9e1dd9";
+import { getAppSlug } from "../ui/viewer-meta.js?v=aa3afb9e1dd9";
 
 function extractAssets(html) {
   const assets = new Set();
@@ -47,6 +49,7 @@ export async function downloadAppBundle(channel, appKey, onProgress, onMetadata,
   setMediaPaths(metadata.mediaPaths);
   setChunkedUploads(metadata.chunkedUploads);
   await saveRuntimeRules(appKey, metadata.runtimeCache);
+  metadata.icons = await cacheDeclaredIcons(channel, getAppSlug({ title: metadata.name }), metadata.declaredIcons);
   if (onMetadata) onMetadata(metadata);
 
   const assetPaths = extractAssets(htmlText).map((p) => (p.startsWith("/") ? p : "/" + p));

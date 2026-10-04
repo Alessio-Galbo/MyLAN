@@ -6,7 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { applyStamp, referencesOf, shippedFiles, computeVersions, VERSION_RE } from "./stamp-rules.mjs";
+import { applyStamp, referencesOf, shippedFiles, swFiles, computeVersions, VERSION_RE } from "./stamp-rules.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CHECK = process.argv.includes("--check");
@@ -28,7 +28,10 @@ for (const rel of shippedFiles(ROOT).filter((f) => /\.(js|html)$/.test(f))) {
 }
 
 const versionFile = path.join(ROOT, "version.json");
-const versionJson = JSON.stringify({ version, sw: swVersion }, null, 2) + "\n";
+// files: cosa scarica il Service Worker (src/loader/sw-shell.js) prima di passare a una nuova pubblicazione.
+const swOnly = new Set(swFiles(ROOT));
+const files = shippedFiles(ROOT).filter((f) => /^src\/.*\.(js|css|json)$/.test(f) && !swOnly.has(f));
+const versionJson = JSON.stringify({ version, sw: swVersion, files }, null, 2) + "\n";
 let current = "";
 try { current = fs.readFileSync(versionFile, "utf8").replace(/\r\n/g, "\n"); } catch {}
 if (current !== versionJson) {

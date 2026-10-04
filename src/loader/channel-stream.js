@@ -3,9 +3,9 @@
  * La pagina iniziale ("/") viene raccolta come byte e decodificata UTF-8 una sola volta alla fine,
  * sia con chunk JSON base64 sia con frame binari.
  */
-import { getOrCreateDeviceId } from "../webrtc/device-id.js?v=76b805b937bb";
-import { unpackBinaryChunk } from "./channel-binary.js?v=76b805b937bb";
-import { sendRequestWithBody } from "./channel-body.js?v=76b805b937bb";
+import { getOrCreateDeviceId } from "../webrtc/device-id.js?v=aa3afb9e1dd9";
+import { unpackBinaryChunk } from "./channel-binary.js?v=aa3afb9e1dd9";
+import { sendRequestWithBody } from "./channel-body.js?v=aa3afb9e1dd9";
 
 let reqCounter = 0;
 

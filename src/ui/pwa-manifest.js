@@ -2,8 +2,9 @@
  * Gestione dinamica del Web App Manifest per l'installazione Multi-PWA borderless di ciascuna applicazione.
  * Ordine garantito: icone in CacheStorage -> manifest in CacheStorage -> unico <link rel="manifest"> aggiornato.
  */
-import { getAppSlug } from "./viewer-meta.js?v=76b805b937bb";
-import { MANIFEST_CACHE, cacheAppIcons, hashText } from "./pwa-icon.js?v=76b805b937bb";
+import { getAppSlug } from "./viewer-meta.js?v=aa3afb9e1dd9";
+import { MANIFEST_CACHE, cacheAppIcons, hashText } from "./pwa-icon.js?v=aa3afb9e1dd9";
+import { declaredManifestIcons } from "./pwa-icon-set.js?v=aa3afb9e1dd9";
 
 let applySeq = 0;
 
@@ -24,8 +25,12 @@ export async function applyAppManifest(appData) {
   const slug = getAppSlug(appData);
   const iconRaw = (appData.icon || "").trim();
   const title = appData.title || "Web Application";
-  const version = hashText([title, iconRaw, appData.themeColor || "", appData.description || ""].join("|"));
-  const appIcons = await cacheAppIcons(slug, iconRaw, version);
+  const declared = Array.isArray(appData.icons) ? appData.icons : [];
+  const version = hashText([title, iconRaw, appData.themeColor || "", appData.backgroundColor || "",
+    appData.description || "", JSON.stringify(declared)].join("|"));
+  // Prima le icone dichiarate dall'app (512 "any" e "maskable" per la schermata di avvio di Android); senza, l'icona
+  // del registro rasterizzata a 192 e 512 (src/ui/pwa-icon.js).
+  const appIcons = (await declaredManifestIcons(slug, declared, version)) || (await cacheAppIcons(slug, iconRaw, version));
   if (seq !== applySeq) return;
 
   const baseUrl = new URL(window.location.pathname, window.location.origin);
@@ -34,11 +39,13 @@ export async function applyAppManifest(appData) {
 
   const png192 = new URL("./src/icons/icon-192.png", window.location.href).href;
   const png512 = new URL("./src/icons/icon-512.png", window.location.href).href;
+  const pngMask = new URL("./src/icons/icon-maskable-512.png", window.location.href).href;
   // Le icone MyLAN servono solo se l'app non ne fornisce una: se presenti insieme (soprattutto "maskable")
   // Chrome Android potrebbe preferirle a quelle dell'app.
   const icons = appIcons || [
     { src: png192, sizes: "192x192", type: "image/png", purpose: "any" },
-    { src: png512, sizes: "512x512", type: "image/png", purpose: "any" }
+    { src: png512, sizes: "512x512", type: "image/png", purpose: "any" },
+    { src: pngMask, sizes: "512x512", type: "image/png", purpose: "maskable" }
   ];
 
   const manifest = {
@@ -49,7 +56,7 @@ export async function applyAppManifest(appData) {
     scope: new URL("./", window.location.href).href,
     display: "fullscreen",
     display_override: ["fullscreen", "standalone"],
-    background_color: "#0b0f19",
+    background_color: appData.backgroundColor || appData.themeColor || "#0b0f19", // schermata di avvio
     theme_color: appData.themeColor || "#0b0f19",
     description: appData.description || "Web Application standalone via MyLAN",
     icons

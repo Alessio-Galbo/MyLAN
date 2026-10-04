@@ -1,4 +1,4 @@
-"""Genera le icone PNG (192x192 e 512x512) per il manifest PWA di MyLAN."""
+"""Genera le icone PNG (192x192 e 512x512, "any" e "maskable") per il manifest PWA di MyLAN."""
 from pathlib import Path
 from PIL import Image, ImageDraw
 
@@ -31,6 +31,14 @@ def render_mylan_icon(size: int) -> Image.Image:
     draw.ellipse([p_center[0] - r_core, p_center[1] - r_core, p_center[0] + r_core, p_center[1] + r_core], fill=(255, 255, 255, 255))
     return img
 
+def render_maskable_icon(size: int) -> Image.Image:
+    """Icona "maskable": sfondo pieno fino ai bordi, disegno nella zona sicura (80% centrale) che Android non taglia."""
+    img = Image.new("RGBA", (size, size), (11, 15, 25, 255))
+    inner = int(size * 0.8)
+    off = (size - inner) // 2
+    img.alpha_composite(render_mylan_icon(inner), (off, off))
+    return img
+
 def main():
     icons_dir = Path(__file__).resolve().parent.parent / "src" / "icons"
     icons_dir.mkdir(parents=True, exist_ok=True)
@@ -38,6 +46,9 @@ def main():
         out_path = icons_dir / f"icon-{s}.png"
         render_mylan_icon(s).save(out_path, format="PNG")
         print(f"Generata: {out_path} ({s}x{s})")
+        mask_path = icons_dir / f"icon-maskable-{s}.png"
+        render_maskable_icon(s).save(mask_path, format="PNG")
+        print(f"Generata: {mask_path} ({s}x{s}, maskable)")
 
 if __name__ == "__main__":
     main()

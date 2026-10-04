@@ -3,7 +3,7 @@
  * per inoltrare le richieste dell'app "appKey"? Il frame dell'app conosce il proprio id di client
  * (window.__mylanClientId, impostato dallo script iniettato da sandbox-bridge.js).
  */
-import { getActiveChannel, getChannelOwner } from "../webrtc/channel.js?v=76b805b937bb";
+import { getActiveChannel, getChannelOwner } from "../webrtc/channel.js?v=aa3afb9e1dd9";
 
 export function answerRelayProbe(evt) {
   const port = evt.ports?.[0];

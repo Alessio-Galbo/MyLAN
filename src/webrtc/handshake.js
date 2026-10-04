@@ -1,18 +1,18 @@
 /**
  * Esecuzione dell'handshake WebRTC P2P con busta cifrata end-to-end.
  */
-import { t } from "../core/i18n.js?v=76b805b937bb";
-import { deriveKey } from "../crypto/kdf.js?v=76b805b937bb";
-import { deriveTopic } from "../signaling/topics.js?v=76b805b937bb";
-import { sealEnvelope, unsealEnvelope } from "../crypto/envelope.js?v=76b805b937bb";
-import { postEnvelope, pollEnvelope } from "../signaling/client.js?v=76b805b937bb";
-import { createPeer, createFullOffer, applyAnswer } from "./peer.js?v=76b805b937bb";
-import { rememberHostIce, hostIceFor } from "./ice-config.js?v=76b805b937bb";
-import { waitForChannelsOpen, setActiveChannels, setWantedOwner } from "./channel.js?v=76b805b937bb";
-import { sessionKeyOf } from "../loader/session-key.js?v=76b805b937bb";
-import { getOrCreateDeviceId } from "./device-id.js?v=76b805b937bb";
-import { getDeviceMeta } from "./device-meta.js?v=76b805b937bb";
-import { saveApp } from "../storage/app-registry.js?v=76b805b937bb";
+import { t } from "../core/i18n.js?v=aa3afb9e1dd9";
+import { deriveKey } from "../crypto/kdf.js?v=aa3afb9e1dd9";
+import { deriveTopic } from "../signaling/topics.js?v=aa3afb9e1dd9";
+import { sealEnvelope, unsealEnvelope } from "../crypto/envelope.js?v=aa3afb9e1dd9";
+import { postEnvelope, pollEnvelope } from "../signaling/client.js?v=aa3afb9e1dd9";
+import { createPeer, createFullOffer, applyAnswer } from "./peer.js?v=aa3afb9e1dd9";
+import { rememberHostIce, hostIceFor } from "./ice-config.js?v=aa3afb9e1dd9";
+import { waitForChannelsOpen, setActiveChannels, setWantedOwner } from "./channel.js?v=aa3afb9e1dd9";
+import { sessionKeyOf } from "../loader/session-key.js?v=aa3afb9e1dd9";
+import { getOrCreateDeviceId } from "./device-id.js?v=aa3afb9e1dd9";
+import { getDeviceMeta } from "./device-meta.js?v=aa3afb9e1dd9";
+import { saveApp } from "../storage/app-registry.js?v=aa3afb9e1dd9";
 
 export async function executeHandshake(code, onStatus) {
   onStatus(t("portal.connecting"), "loading");

@@ -1,7 +1,7 @@
 /**
  * Generatore dello script bridge per l'ambiente sandbox iframe di MyLAN.
  */
-import { installStorageShim } from "./frame-storage-shim.js?v=76b805b937bb";
+import { installStorageShim } from "./frame-storage-shim.js?v=aa3afb9e1dd9";
 
 // Errori di avvio (primi 10 s): errore di script non gestito (anche SyntaxError di collegamento dei moduli), script
 // che non si carica, import dinamico fallito. Uno solo a MyLAN ("mylan:app-boot-error"): src/ui/viewer-heal.js.

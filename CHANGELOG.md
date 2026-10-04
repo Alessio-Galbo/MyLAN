@@ -4,6 +4,25 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+### Changed
+- An installed app (and the Hub) opens without waiting for the network: the Service Worker answers MyLAN's page and
+  its stamped files from its own cache (`mylan-shell-v1`, `src/loader/sw-shell.js`) and `src/boot.js` imports the
+  version written in it at once (before, it read `version.json` from the network on every launch). A new publish is
+  read in the background and switched to only when all its files (listed in `version.json`) are cached, so the next
+  launch runs it whole; a stamped file missing from the cache is fetched only while `version.json` still announces
+  its version (otherwise `503` and `src/boot.js` restarts with the published version). Measured with a 400 ms
+  network: app visible in 0.08 s instead of 6.6 s; offline it now opens (before: no page).
+- The installed PWA of an app lists all the icons the app declares (sizes and `purpose`, e.g. 512 `any` and 512
+  `maskable`), downloaded over the channel and cached, and takes `background_color`/`theme_color` from the app, so the
+  Android splash screen is sharp. Apps declaring no 512 px icon get an upscaled copy (fallback). Apps saved earlier
+  read their icons once at the next connection. Recommended icon set: APP_SPEC §2.
+- MyLAN's own manifest has separate `any` and full-bleed `maskable` icons (192 and 512).
+
+### Fixed
+- While the app's channel was not open yet (launch, reconnection) a `runtime_cache` resource whose exact URL was not
+  saved (e.g. a cover with a new `v`) waited for the channel even when another version of it was saved; now the
+  saved one is shown at once and the exact one is saved in the background. Only `network-first` rules wait.
+
 ## [cc7875c] - 2026-10-04 - Atomic updates with content-hash versioned modules
 
 ### Fixed

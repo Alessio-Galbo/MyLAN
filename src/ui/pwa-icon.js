@@ -15,7 +15,7 @@ function toImageSrc(raw) {
   return raw;
 }
 
-function loadImage(src) {
+export function loadImage(src) {
   return new Promise((resolve) => {
     const img = new Image();
     const timer = setTimeout(() => resolve(null), 4000);
@@ -25,7 +25,7 @@ function loadImage(src) {
   });
 }
 
-function renderPng(img, size) {
+export function renderPng(img, size) {
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;

@@ -5,13 +5,14 @@
  * l'app sceglie quando ricaricarsi (senza gestore la nuova versione si vede alla prossima apertura). Prima ogni
  * richiesta svuotava la cache e ricaricava l'iframe: un'app che la chiedeva a ogni avvio girava in tondo.
  */
-import { getActiveChannel, getApiChannel, getChannelOwner } from "../webrtc/channel.js?v=76b805b937bb";
-import { downloadAppBundle } from "../loader/app-downloader.js?v=76b805b937bb";
-import { sessionKeyOf, sessionBaseUrl } from "../loader/session-key.js?v=76b805b937bb";
-import { hostVersion, storedVersion } from "../loader/app-updater.js?v=76b805b937bb";
-import { hasShellHtml } from "../loader/html-patcher.js?v=76b805b937bb";
-import { ensureRuntimeRules } from "../loader/runtime-rules.js?v=76b805b937bb";
-import { saveApp } from "../storage/app-registry.js?v=76b805b937bb";
+import { getActiveChannel, getApiChannel, getChannelOwner } from "../webrtc/channel.js?v=aa3afb9e1dd9";
+import { downloadAppBundle } from "../loader/app-downloader.js?v=aa3afb9e1dd9";
+import { sessionKeyOf, sessionBaseUrl } from "../loader/session-key.js?v=aa3afb9e1dd9";
+import { hostVersion, storedVersion } from "../loader/app-updater.js?v=aa3afb9e1dd9";
+import { hasShellHtml } from "../loader/html-patcher.js?v=aa3afb9e1dd9";
+import { ensureRuntimeRules } from "../loader/runtime-rules.js?v=aa3afb9e1dd9";
+import { saveApp } from "../storage/app-registry.js?v=aa3afb9e1dd9";
+import { ensureAppIcons } from "../loader/app-icons-update.js?v=aa3afb9e1dd9";
 
 const running = new Map();
 
@@ -30,7 +31,12 @@ export function checkAppUpdate(iframe, appData) {
 async function run(iframe, appData, appKey) {
   const channel = ownChannel(appKey);
   if (!channel) return null;
-  const keepMeta = (m) => { appData.updateCheck = m.updateCheck; saveApp({ ...appData }); };
+  const keepMeta = (m) => {
+    appData.updateCheck = m.updateCheck;
+    if (m.icons?.length) Object.assign(appData, { icons: m.icons, backgroundColor: m.backgroundColor, themeColor: m.themeColor });
+    saveApp({ ...appData });
+    window.dispatchEvent(new CustomEvent("mylan:app-meta", { detail: appData })); // manifest della PWA (app-viewer.js)
+  };
   try {
     if (!hasShellHtml(appKey)) { // copia mai completata: scaricamento completo, poi apertura
       await downloadAppBundle(channel, appKey, () => {}, keepMeta, true);
@@ -38,6 +44,7 @@ async function run(iframe, appData, appKey) {
       return true;
     }
     ensureRuntimeRules(channel, appKey); // app salvate prima di "runtime_cache": regole lette una volta
+    if (!Array.isArray(appData.icons)) ensureAppIcons(channel, appData).then(keepMeta).catch(() => {}); // idem: icone
     const now = await hostVersion(channel, appData.updateCheck);
     if (!now) return null;
     if (now === storedVersion(appKey)) return false;

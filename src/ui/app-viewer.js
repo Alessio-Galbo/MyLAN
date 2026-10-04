@@ -1,15 +1,15 @@
 /**
  * Visualizzatore a schermo intero per l'applicazione attiva collegata via P2P.
  */
-import { saveApp } from "../storage/app-registry.js?v=76b805b937bb";
-import { initBackgroundReconnect, prepareAppSession } from "./viewer-loader.js?v=76b805b937bb";
-import { answerUpdateRequest } from "./viewer-updater.js?v=76b805b937bb";
-import { openFrame, healOnBootError } from "./viewer-heal.js?v=76b805b937bb";
-import { getAppSlug, setFavicon, restoreFavicon, adoptFrameIcon } from "./viewer-meta.js?v=76b805b937bb";
-import { applyAppManifest, restoreDefaultManifest } from "./pwa-manifest.js?v=76b805b937bb";
-import { watchViewer } from "./viewer-watchdog.js?v=76b805b937bb";
-import { sessionKeyOf } from "../loader/session-key.js?v=76b805b937bb";
-import { dropRuntimeEntries } from "../loader/runtime-rules.js?v=76b805b937bb";
+import { saveApp } from "../storage/app-registry.js?v=aa3afb9e1dd9";
+import { initBackgroundReconnect, prepareAppSession } from "./viewer-loader.js?v=aa3afb9e1dd9";
+import { answerUpdateRequest } from "./viewer-updater.js?v=aa3afb9e1dd9";
+import { openFrame, healOnBootError } from "./viewer-heal.js?v=aa3afb9e1dd9";
+import { getAppSlug, setFavicon, restoreFavicon, adoptFrameIcon } from "./viewer-meta.js?v=aa3afb9e1dd9";
+import { applyAppManifest, restoreDefaultManifest } from "./pwa-manifest.js?v=aa3afb9e1dd9";
+import { watchViewer } from "./viewer-watchdog.js?v=aa3afb9e1dd9";
+import { sessionKeyOf } from "../loader/session-key.js?v=aa3afb9e1dd9";
+import { dropRuntimeEntries } from "../loader/runtime-rules.js?v=aa3afb9e1dd9";
 
 export { getAppSlug };
 
@@ -67,13 +67,16 @@ export function renderAppViewer(container, appData, onExit) {
     }
   };
 
+  const onMeta = (evt) => { if (evt.detail?.id === appData.id) syncManifest(); }; // icone/colori nuovi dall'host
   window.addEventListener("message", onMessage);
   window.addEventListener("popstate", onPopState);
+  window.addEventListener("mylan:app-meta", onMeta);
 
   function cleanup() {
     watchdog.stop();
     window.removeEventListener("message", onMessage);
     window.removeEventListener("popstate", onPopState);
+    window.removeEventListener("mylan:app-meta", onMeta);
     document.title = prevTitle;
     restoreFavicon(faviconEl, prevFavicon, prevType);
     restoreDefaultManifest();

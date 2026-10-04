@@ -1,9 +1,10 @@
 /**
  * Modulo di scoperta ed estrazione dei metadati dell'applicazione remota (Manifest/HTML).
  */
-import { t } from "../core/i18n.js?v=76b805b937bb";
-import { sendChannelRequest } from "./channel-fetch.js?v=76b805b937bb";
-import { parseRuntimeCache } from "./runtime-rules.js?v=76b805b937bb";
+import { t } from "../core/i18n.js?v=aa3afb9e1dd9";
+import { sendChannelRequest } from "./channel-fetch.js?v=aa3afb9e1dd9";
+import { parseRuntimeCache } from "./runtime-rules.js?v=aa3afb9e1dd9";
+import { parseDeclaredIcons } from "./app-icons.js?v=aa3afb9e1dd9";
 
 async function fetchJsonSafely(channel, path) {
   try {
@@ -57,7 +58,7 @@ export async function fetchAppMetadata(channel, htmlText = "") {
   const htmlMeta = extractFromHtml(htmlText);
   const name = manifest?.name || manifest?.short_name || htmlMeta.name || t("sync.default_app_name");
   const description = manifest?.description || htmlMeta.description || t("sync.default_app_desc");
-  const themeColor = manifest?.theme_color || "";
+  const themeColor = typeof manifest?.theme_color === "string" ? manifest.theme_color.slice(0, 32) : "";
 
   let iconCandidate = manifest?.icon || "";
   if (!iconCandidate && Array.isArray(manifest?.icons) && manifest.icons.length > 0) {
@@ -77,5 +78,8 @@ export async function fetchAppMetadata(channel, htmlText = "") {
   const updateCheck = typeof uc?.url === "string" && uc.url.startsWith("/")
     ? { url: uc.url, field: typeof uc.field === "string" ? uc.field : "version" } : null;
   const runtimeCache = parseRuntimeCache(manifest?.runtime_cache); // GET da tenere offline (src/loader/runtime-rules.js)
-  return { name, description, themeColor, icon, mediaPaths, chunkedUploads, updateCheck, runtimeCache };
+  const backgroundColor = typeof manifest?.background_color === "string" ? manifest.background_color.slice(0, 32) : "";
+  const declaredIcons = parseDeclaredIcons(manifest?.icons); // PWA installata dell'app (src/loader/app-icons.js)
+  return { name, description, themeColor, backgroundColor, icon, declaredIcons, mediaPaths, chunkedUploads, updateCheck,
+    runtimeCache };
 }

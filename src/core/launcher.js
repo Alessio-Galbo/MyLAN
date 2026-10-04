@@ -1,13 +1,13 @@
 /**
  * Logica di connessione, sincronizzazione P2P e lancio dell'applicazione.
  */
-import { t } from "./i18n.js?v=76b805b937bb";
-import { executeHandshake } from "../webrtc/handshake.js?v=76b805b937bb";
-import { downloadAppBundle } from "../loader/app-downloader.js?v=76b805b937bb";
-import { saveApp } from "../storage/app-registry.js?v=76b805b937bb";
-import { createSyncProgress } from "../ui/sync-progress.js?v=76b805b937bb";
-import { clearUrlParams } from "../ui/code-input.js?v=76b805b937bb";
-import { sessionKeyOf } from "../loader/session-key.js?v=76b805b937bb";
+import { t } from "./i18n.js?v=aa3afb9e1dd9";
+import { executeHandshake } from "../webrtc/handshake.js?v=aa3afb9e1dd9";
+import { downloadAppBundle } from "../loader/app-downloader.js?v=aa3afb9e1dd9";
+import { saveApp } from "../storage/app-registry.js?v=aa3afb9e1dd9";
+import { createSyncProgress } from "../ui/sync-progress.js?v=aa3afb9e1dd9";
+import { clearUrlParams } from "../ui/code-input.js?v=aa3afb9e1dd9";
+import { sessionKeyOf } from "../loader/session-key.js?v=aa3afb9e1dd9";
 
 export async function connectAndSyncApp(code, statusCard, container, onReady, onError) {
   clearUrlParams();
@@ -32,6 +32,8 @@ export async function connectAndSyncApp(code, statusCard, container, onReady, on
       description: res?.metadata?.description || "",
       icon: res?.metadata?.icon || "",
       themeColor: res?.metadata?.themeColor || "",
+      backgroundColor: res?.metadata?.backgroundColor || "",
+      icons: res?.metadata?.icons || [],
       mediaPaths: res?.metadata?.mediaPaths || [],
       chunkedUploads: Boolean(res?.metadata?.chunkedUploads),
       updateCheck: res?.metadata?.updateCheck || null

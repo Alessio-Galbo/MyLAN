@@ -46,7 +46,8 @@ async function runtimeLookup(appKey, key) {
 /**
  * forward(headers?) porta la richiesta all'host sul canale (503 subito se il canale manca e non si sta riconnettendo).
  * cache-first (e ogni URL con version_param): una voce salvata vale finche' c'e'. stale-while-revalidate: subito la
- * copia salvata, poi verifica in background (If-None-Match). network-first: rete, la copia salvata se fallisce o tarda.
+ * copia salvata, poi verifica in background (If-None-Match). network-first: rete, la copia salvata se fallisce o tarda
+ * (l'unica strategia che aspetta, al massimo timeout_ms).
  */
 async function runtimeFetch(event, rule, url, appKey, forward) {
   const key = runtimeKey(url, rule);
@@ -57,6 +58,15 @@ async function runtimeFetch(event, rule, url, appKey, forward) {
   if (cached && strategy !== "network-first") {
     if (strategy === "stale-while-revalidate") event.waitUntil(revalidate(rule, appKey, key, cached, forward));
     return cached;
+  }
+  // Canale non ancora aperto (avvio, riconnessione, host spento): la stessa risorsa con un'altra versione o misura
+  // esce subito; quella esatta si scarica e si salva in background appena il canale c'e'.
+  if (strategy !== "network-first") {
+    const other = await runtimeAnyVersion(appKey, key);
+    if (other && !(await relayChannelOpen(appKey, event.clientId))) {
+      event.waitUntil(revalidate(rule, appKey, key, null, forward));
+      return other;
+    }
   }
   let res = null;
   const wait = cached ? Math.min(Number(rule.timeout_ms) || 4000, 15000) : 0; // con una copia: niente attese lunghe
@@ -78,7 +88,7 @@ async function runtimeAnyVersion(appKey, key) {
 
 async function revalidate(rule, appKey, key, cached, forward) {
   try {
-    const etag = cached.headers.get("etag");
+    const etag = cached?.headers.get("etag");
     const res = await forward(etag ? { "if-none-match": etag } : {});
     if (res.status === 200 && res.headers.get("x-mylan-fallback") !== "1") await runtimeStore(rule, appKey, key, res);
   } catch {}

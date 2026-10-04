@@ -54,15 +54,23 @@ MyLAN is a static site without a build step. Before every publish run:
 ```bash
 node Tools/stamp.mjs            # writes ?v=<version> on every import and stylesheet, plus version.json
 node Tools/stamp.mjs --check    # exits 1 if a stamp is missing or stale (run it before pushing)
-node Tools/test_atomic_update.mjs   # optional: headless proof that an update never mixes two versions
+node Tools/test_atomic_update.mjs   # optional: headless proof that updates never mix two versions
 ```
 
 GitHub Pages lets browsers keep files for 10 minutes (`max-age=600`), so right after a publish a browser could load
 some old and some new modules and break. The version is a hash of the published files (no number to bump by hand):
-every module is loaded as `...js?v=<version>`, and `src/boot.js` reads `version.json` without cache and starts the
-modules of that version, so a page always runs one consistent version, even with an old `index.html` still cached.
-The Service Worker has its own stamp (`sw.js` and its `importScripts`), so it is reinstalled only when its code
-changes. Do not edit the `?v=` stamps by hand; commit the stamped files and `version.json`.
+every module is loaded as `...js?v=<version>` and `version.json` lists the files of the version.
+
+Launching never waits for the network. MyLAN's Service Worker (`src/loader/sw-shell.js`) answers the page
+(`index.html`, also `?app=<slug>` of an installed app) and the stamped files from its cache (`mylan-shell-v1`), so an
+installed app opens at once on a slow mobile network or offline. In the background it reads the new page; when it
+belongs to a new publish it downloads **all** the files of that version (from `version.json`) before switching, so
+the launch after a publish still runs the previous version whole and the following one runs the new version whole.
+A stamped file missing from the cache is fetched only while `version.json` still announces that version (otherwise
+`503`, and `src/boot.js` restarts with the published version). Without that Service Worker (first visit, older
+browsers) `src/boot.js` reads `version.json` without cache (at most 3 s) before importing. The Service Worker has
+its own stamp (`sw.js` and its `importScripts`), so it is reinstalled only when its code changes. Do not edit the
+`?v=` stamps by hand; commit the stamped files and `version.json`.
 
 ---
 
