@@ -29,6 +29,7 @@
     "back_hub": "Back to MyLAN",
     "status_connected": "P2P channel active",
     "status_reconnecting": "Reconnecting to host...",
+    "reconnecting": "Reconnecting…",
     "status_offline": "Offline mode",
     "reconnect_btn": "Reconnect",
     "boot_repairing": "Repairing the app: downloading a complete, consistent copy from the host...",

@@ -5,6 +5,13 @@ let activeApiChannel = null;
 let activeMediaChannel = null;
 let activeOwner = "";
 let wantedOwner = "";
+const changeListeners = new Set();
+
+/** fn(apiChannel) a ogni cambio dei canali attivi (src/ui/viewer-watchdog.js ne osserva la chiusura). */
+export function onChannelsChanged(fn) {
+  changeListeners.add(fn);
+  return () => changeListeners.delete(fn);
+}
 
 /** Chiave di sessione dell'app aperta: i canali di un altro host non vengono piu' adottati. */
 export function setWantedOwner(owner) {
@@ -31,7 +38,15 @@ export function setActiveChannels({ api, media, owner = "" }) {
   if (api) activeApiChannel = api;
   if (media) activeMediaChannel = media;
   activeOwner = owner;
+  changeListeners.forEach((fn) => { try { fn(activeApiChannel); } catch {} });
   return true;
+}
+
+/** Canale "aperto" ma muto (host sparito senza chiudere): si chiude, le richieste in corso falliscono subito. */
+export function dropActiveChannels() {
+  closeQuietly(activeApiChannel, []);
+  closeQuietly(activeMediaChannel, []);
+  activeApiChannel = activeMediaChannel = null;
 }
 
 export function setActiveChannel(channel) {
@@ -51,26 +66,4 @@ export function getActiveChannel() {
   return activeApiChannel;
 }
 
-export function waitForChannelOpen(channel, timeoutMs = 30000) {
-  return new Promise((resolve, reject) => {
-    if (!channel) return reject(new Error("No channel provided"));
-    if (channel.readyState === "open") return resolve(channel);
-    const timer = setTimeout(() => {
-      cleanup();
-      reject(new Error("P2P DataChannel timeout"));
-    }, timeoutMs);
-    const onOpen = () => { cleanup(); resolve(channel); };
-    const onError = (err) => { cleanup(); reject(err); };
-    function cleanup() {
-      clearTimeout(timer);
-      channel.removeEventListener("open", onOpen);
-      channel.removeEventListener("error", onError);
-    }
-    channel.addEventListener("open", onOpen);
-    channel.addEventListener("error", onError);
-  });
-}
-
-export function waitForChannelsOpen(channels = [], timeoutMs = 30000) {
-  return Promise.all(channels.map((ch) => waitForChannelOpen(ch, timeoutMs)));
-}
+export { waitForChannelOpen, waitForChannelsOpen } from "./channel-wait.js";

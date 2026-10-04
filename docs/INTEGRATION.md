@@ -68,9 +68,11 @@ Fields read by MyLAN (`src/loader/app-metadata.js`):
 | `media_paths[]` | Optional path prefixes (each starting with `/`) to route over the `mylan-media` channel |
 | `chunked_uploads` | `true` if your host accepts request bodies over 64 KB sent as binary frames (APP_SPEC §4.1); without it such requests get a local `413` |
 | `update_check` | Optional `{ "url": "/api/version", "field": "shell" }`: a GET path on your host (JSON) and the field holding the version of your frontend files. MyLAN compares it with the cached copy after each (re)connection; without it MyLAN compares a hash of your root HTML (§4 "Updates") |
+| `runtime_cache` | Optional list of `GET` path prefixes (also under `/api/`) that MyLAN may keep for offline use, e.g. covers or thumbnails already seen (§4 "Runtime cache") |
 | `version` | Informational |
 
-Example (`/.well-known/mylan.json`, served by your host, no authentication required):
+Example (`/.well-known/mylan.json`, served by your host, no authentication required; MyLAN also requests it as a
+light liveness check after a tab restore, §4):
 
 ```json
 {
@@ -82,7 +84,11 @@ Example (`/.well-known/mylan.json`, served by your host, no authentication requi
   "icon": "/icons/example-192.png",
   "media_paths": ["/files/", "/api/stream/"],
   "chunked_uploads": true,
-  "update_check": { "url": "/api/version", "field": "shell" }
+  "update_check": { "url": "/api/version", "field": "shell" },
+  "runtime_cache": [
+    { "prefix": "/api/covers/", "strategy": "stale-while-revalidate", "keep_params": ["size", "v"],
+      "version_param": "v" }
+  ]
 }
 ```
 
@@ -99,8 +105,8 @@ running it can also update its title and icon at any time with the `mylan:regist
   namespace; all of them are deleted when the app is removed from the Hub (`src/storage/app-cleanup.js`).
 * **Service Worker** (`sw.js`): requests under `/session/<key>/` are answered from that app's cache when possible;
   everything else is forwarded to the MyLAN page (`src/loader/sw-bridge.js`), which sends it over the DataChannel and
-  streams the response back. Only `GET` responses outside `/api/` are cached; paths starting with `/api/` and other
-  methods are never cached. Requests go only over the channel of that app's host: opening another saved app
+  streams the response back. Only `GET` responses outside `/api/` are cached, plus the `GET` paths the app declares in
+  `runtime_cache` (below); other `/api/` responses and other methods are never cached. Requests go only over the channel of that app's host: opening another saved app
   reconnects to its host, and the previous channel is closed.
 * **Which tab relays** (`src/loader/sw-relay.js`, `sw-relay-probe.js`): with several MyLAN tabs open, the Service
   Worker asks each one whether it hosts the requesting frame (the frame learns its own client id at start-up),
@@ -121,6 +127,40 @@ running it can also update its title and icon at any time with the `mylan:regist
 * **Cache first**: a saved app always opens from its cache (`GET` outside `/api/`), before and independently of the P2P
   link. Requests that need the host wait for the channel only while a reconnection is in progress (at most 15 s); with
   the host off or no reconnection running they fail at once with `503`, so your app can show its offline state.
+* **Automatic return after a pause** (`src/ui/viewer-watchdog.js`, `src/loader/channel-probe.js`): mobile browsers
+  freeze or discard background tabs, and after a long pause the DataChannel is usually dead, or still `open` but no
+  longer answered (the host lost the peer, the phone changed network). Whenever the page becomes visible again,
+  resumes (`resume`, `pageshow` from the back/forward cache), gets the network back (`online`) or the app's channel
+  closes, MyLAN checks the channel: no channel, or no answer within 4 s to a light `GET /.well-known/mylan.json` (any
+  status counts as an answer), means it closes the dead channel (pending requests fail at once with `503` instead of
+  hanging) and reconnects with the saved token. One attempt at a time; while the page stays visible and online, up to
+  six more attempts follow after 1, 2, 5, 10, 20 and 30 s, then MyLAN waits for the next event (or for
+  `mylan:request-reconnect`). A small "Reconnecting..." label (it/en) is shown above the app meanwhile. When the
+  channel is back the frame receives `mylan:peer-connected`; nothing is reloaded. A page discarded by the browser is
+  simply reloaded and reconnects as on any start. `mylan:request-reconnect` goes through the same check, so a channel
+  that is open but mute is replaced too.
+* **Runtime cache** (`src/loader/sw-runtime-cache.js`, `sw-runtime-store.js`, `runtime-rules.js`): images and other
+  `GET` resources your app shows from `/api/` (covers, thumbnails, avatars) would be missing with the host off. Declare
+  their prefixes in `runtime_cache` and MyLAN keeps the ones already seen in a per-app cache `mylan-runtime:<key>`
+  (deleted with the app). Each rule: `prefix` (starts with `/`), `strategy` (`cache-first`, default;
+  `stale-while-revalidate`: the saved copy at once, then a background check with `If-None-Match`; `network-first`: the
+  host, the saved copy if it fails or takes longer than `timeout_ms`, default 4000), `max_entries` (optional cap, the
+  oldest go first; absent = no fixed number, recommended), `max_entry_kb` (default 1024, at most 4096), `keep_params` (only these query parameters
+  form the cache key) and `version_param` (a URL carrying it never changes, so it is served cache-first, and a new value
+  replaces the copies of the same resource with other values). With the host unreachable a saved entry is answered at
+  once (no wait for a reconnection); when the exact URL was never seen, another saved version of the same path is used
+  if `version_param` is set; otherwise the request fails with `503` as before. At most 10 rules. A request with
+  `Range` or `Cache-Control: no-cache` is not served from the cache first (no-cache: host first, saved copy if it fails).
+  Rules are read at each install or update of the app, and once from the host for apps saved before this feature.
+  **Space**: one copy per resource and `keep_params` combination (with `version_param` a new version replaces the old
+  one), no default cap on the number of entries, and a quota guard (`src/loader/sw-runtime-quota.js`): only when the
+  origin uses more than 80% of its storage quota the oldest runtime entries go (other apps first) until 70%; app files,
+  IndexedDB and Web Storage are never evicted by MyLAN. MyLAN requests persistent storage (`navigator.storage.persist()`)
+  when an app is installed or updated. **Removed resources**: when your host deletes something whose responses may be
+  cached (e.g. an item and its cover), send `mylan:runtime-cache-drop` with the paths (APP_SPEC §5.1) and MyLAN deletes
+  those entries of your app at once; without it they only go under quota pressure. Correct use: version the URLs of
+  images that can change (`?v=<modification time>`), keep sizes/variants in `keep_params`, leave `max_entries` out
+  unless you really need a cap, keep `max_entry_kb` small for thumbnails, never list per-user or changing JSON.
 * **Viewer** (`src/ui/app-viewer.js`): full-screen iframe sized on the dynamic viewport (`100dvh`, fallback `100vh`)
   so it never ends under a mobile browser's bottom bar; the page behind it stops scrolling. The iframe is allowed
   `autoplay; fullscreen; microphone; camera`.
@@ -146,12 +186,14 @@ running it can also update its title and icon at any time with the `mylan:regist
 What your frontend should do:
 
 1. Use relative or root-absolute paths, never hard-coded hosts (`http://192.168.1.10:8000`).
-2. Put every dynamic endpoint under `/api/` so it is never served from cache.
+2. Put every dynamic endpoint under `/api/` so it is never served from cache; list in `runtime_cache` only the `/api/`
+   resources that may be shown from a saved copy (images, thumbnails), never data that must be fresh.
 3. Detect the container (`window.self !== window.top` or `location.pathname` contains `/session/`) and then skip your
    own Service Worker and any LAN-only discovery.
 4. Use HTTP requests (or polling) instead of WebSockets to your host: WebSockets to MyLAN's origin are stubbed.
 5. Listen for `mylan:peer-connected` / `mylan:peer-disconnected` to switch between online and offline behaviour, and
-   send `mylan:request-reconnect` when you need the link back.
+   send `mylan:request-reconnect` when you need the link back. After a tab restore you need nothing else: MyLAN
+   reconnects by itself and then sends `mylan:peer-connected` (re-check your host then, e.g. restart polling).
 
 ---
 
@@ -320,6 +362,7 @@ publishes their own MyLAN on a domain they own.
 | Storage not namespaced everywhere | IndexedDB, your own cache names, cookies and Workers are shared by all apps on the origin | Use app-specific database and cache names |
 | Data from older versions | Versions with one shared space are migrated once at first start: non-MyLAN keys are **copied** into each saved app's namespace; the originals are kept (the origin may host other sites of the same account) | Nothing to do; old keys can be cleared by the user |
 | No WebSockets to the host | WebSockets to MyLAN's origin are stubbed | Use HTTP polling / long-polling over `/api/` |
+| `/api/` responses are not kept offline unless declared | Images served from `/api/` break with the host off | Declare their prefixes in `runtime_cache` (§4) |
 | Non-`/api/` responses are cached | Dynamic content outside `/api/` can be stale | Keep dynamic endpoints under `/api/`, or send the request with a `Cache-Control: no-cache` header |
 | Root-absolute ES module imports | `import "/x.js"` is not rewritten | Use relative imports |
 | iOS install | Safari ignores dynamic manifests for name/icon in many versions | Expect the page title and default icon on iOS |

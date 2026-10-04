@@ -9,6 +9,7 @@ import { setChunkedUploads } from "./channel-body.js";
 import { buildPatchedHtmlString, saveShellHtml } from "./html-patcher.js";
 import { sessionBaseUrl, sessionCacheName } from "./session-key.js";
 import { refreshCachedFiles, hostVersion, storeVersion } from "./app-updater.js";
+import { saveRuntimeRules } from "./runtime-rules.js";
 
 function extractAssets(html) {
   const assets = new Set();
@@ -22,6 +23,13 @@ function extractAssets(html) {
     if (!m[1].startsWith("data:") && !m[1].startsWith("http")) assets.add(m[1]);
   }
   return Array.from(assets);
+}
+
+// Un'app salvata (e i suoi dati offline) non deve sparire quando il dispositivo e' a corto di spazio: si chiede al browser
+// di rendere persistente lo spazio dell'origine (navigator.storage.persist), se non lo e' gia'. Senza risposta: niente.
+function askPersistentStorage() {
+  const sm = navigator.storage;
+  if (sm?.persist) sm.persisted().then((p) => p || sm.persist()).catch(() => {});
 }
 
 /**
@@ -38,6 +46,7 @@ export async function downloadAppBundle(channel, appKey, onProgress, onMetadata,
   const metadata = await fetchAppMetadata(channel, htmlText);
   setMediaPaths(metadata.mediaPaths);
   setChunkedUploads(metadata.chunkedUploads);
+  await saveRuntimeRules(appKey, metadata.runtimeCache);
   if (onMetadata) onMetadata(metadata);
 
   const assetPaths = extractAssets(htmlText).map((p) => (p.startsWith("/") ? p : "/" + p));
@@ -54,6 +63,7 @@ export async function downloadAppBundle(channel, appKey, onProgress, onMetadata,
   await cache.put(new Request(baseSessionUrl + "index.html"), new Response(patchedHtml, { headers: htmlHeaders }));
   storeVersion(appKey, await hostVersion(channel, metadata.updateCheck, htmlText));
 
+  askPersistentStorage();
   onProgress(100, t("sync.ready"));
   return { ready: true, metadata };
 }

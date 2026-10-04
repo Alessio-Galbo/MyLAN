@@ -10,7 +10,7 @@ import { setMediaPaths } from "../loader/sw-channel-selector.js";
 import { setChunkedUploads } from "../loader/channel-body.js";
 import { checkAppUpdate } from "./viewer-updater.js";
 
-const reconnecting = new Set();
+const reconnecting = new Map(); // chiave app -> riconnessione in corso (Promise<boolean>)
 
 /** Imposta instradamento e caricamenti dell'app e restituisce l'URL del suo spazio /session/<chiave>/. */
 export function prepareAppSession(appData) {
@@ -21,16 +21,22 @@ export function prepareAppSession(appData) {
   return sessionBaseUrl(appKey);
 }
 
-export async function initBackgroundReconnect(iframe, appData) {
+/** true: canale dell'app aperto (gia' o dopo la riconnessione); false: host non raggiungibile ora. Una sola per app. */
+export function initBackgroundReconnect(iframe, appData) {
   const appKey = sessionKeyOf(appData);
   const activeChan = getActiveChannel();
   if (activeChan && activeChan.readyState === "open" && getChannelOwner() === appKey) {
     try { iframe?.contentWindow?.postMessage({ type: "mylan:peer-connected" }, "*"); } catch {}
-    return;
+    return Promise.resolve(true);
   }
-  if (!appData?.reconnectToken || reconnecting.has(appKey)) return;
-  reconnecting.add(appKey);
+  if (!appData?.reconnectToken) return Promise.resolve(false);
+  if (!reconnecting.has(appKey)) {
+    reconnecting.set(appKey, reconnectAndNotify(iframe, appData, appKey).finally(() => reconnecting.delete(appKey)));
+  }
+  return reconnecting.get(appKey);
+}
 
+async function reconnectAndNotify(iframe, appData, appKey) {
   try {
     await reconnectPeer(appData.reconnectToken, appKey);
     if (hasShellHtml(appKey)) {
@@ -44,11 +50,10 @@ export async function initBackgroundReconnect(iframe, appData) {
       } catch {}
     }
     checkAppUpdate(iframe, appData); // in background: l'app resta quella in cache finche' non e' pronta la nuova
-
+    return true;
   } catch (err) {
     console.warn("[MyLAN] Background reconnect failed:", err);
     try { iframe?.contentWindow?.postMessage({ type: "mylan:peer-disconnected" }, "*"); } catch {}
-  } finally {
-    reconnecting.delete(appKey);
+    return false;
   }
 }

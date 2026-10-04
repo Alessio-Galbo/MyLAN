@@ -21,6 +21,12 @@ export function sendChannelRequest(channel, path, opts = {}) {
       start(ctrl) { streamController = ctrl; }
     });
 
+    const done = () => { channel.removeEventListener("message", handler); channel.removeEventListener("close", onClose); };
+    const onClose = () => {  // canale chiuso prima della fine: niente richieste appese
+      done();
+      try { streamController?.error(new Error("DataChannel closed")); } catch {}
+      reject(new Error("DataChannel closed"));
+    };
     const handler = (evt) => {
       if (evt.data instanceof ArrayBuffer) {
         const bin = unpackBinaryChunk(evt.data);
@@ -28,7 +34,7 @@ export function sendChannelRequest(channel, path, opts = {}) {
         if (streamController) streamController.enqueue(bin.payload);
         if (!bin.more && streamController) {
           streamController.close();
-          channel.removeEventListener("message", handler);
+          done();
         }
         return;
       }
@@ -46,10 +52,10 @@ export function sendChannelRequest(channel, path, opts = {}) {
           }
           if (!msg.more && streamController) {
             streamController.close();
-            channel.removeEventListener("message", handler);
+            done();
           }
         } else if (msg.type === "error") {
-          channel.removeEventListener("message", handler);
+          done();
           if (streamController) streamController.error(new Error(msg.error));
           reject(new Error(msg.error));
         }
@@ -57,11 +63,12 @@ export function sendChannelRequest(channel, path, opts = {}) {
     };
 
     channel.addEventListener("message", handler);
+    channel.addEventListener("close", onClose);
     const devId = getOrCreateDeviceId();
     const reqHeaders = { ...(opts.headers || {}), "x-device-id": devId };
     const msg = { id: reqId, method: (opts.method || "GET").toUpperCase(), path, device_id: devId, headers: reqHeaders };
     sendRequestWithBody(channel, msg, opts.body, opts.signal).catch((err) => {
-      channel.removeEventListener("message", handler);
+      done();
       reject(err);
     });
   });

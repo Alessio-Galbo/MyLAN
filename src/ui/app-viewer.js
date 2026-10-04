@@ -7,6 +7,9 @@ import { answerUpdateRequest } from "./viewer-updater.js";
 import { openFrame, healOnBootError } from "./viewer-heal.js";
 import { getAppSlug, setFavicon, restoreFavicon, adoptFrameIcon } from "./viewer-meta.js";
 import { applyAppManifest, restoreDefaultManifest } from "./pwa-manifest.js";
+import { watchViewer } from "./viewer-watchdog.js";
+import { sessionKeyOf } from "../loader/session-key.js";
+import { dropRuntimeEntries } from "../loader/runtime-rules.js";
 
 export { getAppSlug };
 
@@ -37,6 +40,7 @@ export function renderAppViewer(container, appData, onExit) {
   viewer.appendChild(iframe);
   openFrame(iframe, appData, sessionUrl); // con il canale gia' aperto: prima l'eventuale aggiornamento, poi l'app
 
+  const watchdog = watchViewer(iframe, appData); // ritorno all'host dopo una pausa della scheda o un canale morto
   iframe.addEventListener("load", () => adoptFrameIcon(iframe, appData, faviconEl, () => { syncManifest(); saveApp(appData); }));
 
   const onPopState = () => { cleanup(); onExit(); };
@@ -45,9 +49,11 @@ export function renderAppViewer(container, appData, onExit) {
     if (evt.data?.type === "mylan:exit") {
       cleanup(); onExit();
     } else if (evt.data?.type === "mylan:request-reconnect") {
-      initBackgroundReconnect(iframe, appData);
+      watchdog.ensure(); // canale verificato (anche "aperto" ma muto) e, se serve, riconnessione
     } else if (evt.data?.type === "mylan:sync-update") {
       answerUpdateRequest(iframe, appData);
+    } else if (evt.data?.type === "mylan:runtime-cache-drop" && evt.source === iframe.contentWindow) {
+      dropRuntimeEntries(sessionKeyOf(appData), evt.data.paths); // solo la cache di runtime di questa app
     } else if (evt.data?.type === "mylan:app-boot-error" && evt.source === iframe.contentWindow) {
       healOnBootError(iframe, appData, evt.data.message);
     } else if (evt.data?.type === "mylan:register" && evt.data.meta) {
@@ -65,6 +71,7 @@ export function renderAppViewer(container, appData, onExit) {
   window.addEventListener("popstate", onPopState);
 
   function cleanup() {
+    watchdog.stop();
     window.removeEventListener("message", onMessage);
     window.removeEventListener("popstate", onPopState);
     document.title = prevTitle;

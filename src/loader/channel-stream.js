@@ -27,8 +27,11 @@ export function sendStreamingChannelRequest(channel, path, opts = {}, onStart, o
 
     const finish = () => {
       channel.removeEventListener("message", handler);
+      channel.removeEventListener("close", onClose);
       opts.signal?.removeEventListener("abort", onAbort);
     };
+    // Canale chiuso (host perso, o canale muto chiuso da viewer-watchdog.js): la richiesta fallisce, non resta appesa.
+    const onClose = () => { finish(); reject(Object.assign(new Error("DataChannel closed"), { status: 503 })); };
 
     const onAbort = () => {
       finish();
@@ -70,6 +73,7 @@ export function sendStreamingChannelRequest(channel, path, opts = {}, onStart, o
     };
 
     channel.addEventListener("message", handler);
+    channel.addEventListener("close", onClose);
     const devId = getOrCreateDeviceId();
     const reqHeaders = { ...(opts.headers || {}), "x-device-id": devId };
     const msg = { id: reqId, method: (opts.method || "GET").toUpperCase(), path, device_id: devId, headers: reqHeaders };

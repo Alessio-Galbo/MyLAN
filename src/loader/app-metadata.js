@@ -3,6 +3,7 @@
  */
 import { t } from "../core/i18n.js";
 import { sendChannelRequest } from "./channel-fetch.js";
+import { parseRuntimeCache } from "./runtime-rules.js";
 
 async function fetchJsonSafely(channel, path) {
   try {
@@ -75,5 +76,6 @@ export async function fetchAppMetadata(channel, htmlText = "") {
   const uc = manifest?.update_check;  // {url, field}: dove l'host dice la versione dell'app (app-updater.js)
   const updateCheck = typeof uc?.url === "string" && uc.url.startsWith("/")
     ? { url: uc.url, field: typeof uc.field === "string" ? uc.field : "version" } : null;
-  return { name, description, themeColor, icon, mediaPaths, chunkedUploads, updateCheck };
+  const runtimeCache = parseRuntimeCache(manifest?.runtime_cache); // GET da tenere offline (src/loader/runtime-rules.js)
+  return { name, description, themeColor, icon, mediaPaths, chunkedUploads, updateCheck, runtimeCache };
 }

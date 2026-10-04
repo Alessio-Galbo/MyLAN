@@ -76,5 +76,6 @@ async function executeReconnect(reconnectToken, owner) {
     pc.close();
     throw new Error("Another app was opened meanwhile");
   }
+  apiChannel.addEventListener("close", () => { try { pc.close(); } catch {} }); // niente peer orfani dopo un canale morto
   return apiChannel;
 }

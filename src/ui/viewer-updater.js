@@ -10,6 +10,7 @@ import { downloadAppBundle } from "../loader/app-downloader.js";
 import { sessionKeyOf, sessionBaseUrl } from "../loader/session-key.js";
 import { hostVersion, storedVersion } from "../loader/app-updater.js";
 import { hasShellHtml } from "../loader/html-patcher.js";
+import { ensureRuntimeRules } from "../loader/runtime-rules.js";
 import { saveApp } from "../storage/app-registry.js";
 
 const running = new Map();
@@ -36,6 +37,7 @@ async function run(iframe, appData, appKey) {
       if (iframe) iframe.src = sessionBaseUrl(appKey);
       return true;
     }
+    ensureRuntimeRules(channel, appKey); // app salvate prima di "runtime_cache": regole lette una volta
     const now = await hostVersion(channel, appData.updateCheck);
     if (!now) return null;
     if (now === storedVersion(appKey)) return false;

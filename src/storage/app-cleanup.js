@@ -7,6 +7,7 @@ import { MANIFEST_CACHE } from "../ui/pwa-icon.js";
 import { getAppSlug } from "../ui/viewer-meta.js";
 import { rememberHostIce } from "../webrtc/ice-config.js";
 import { forgetVersion, STAGING_PREFIX } from "../loader/app-updater.js";
+import { RUNTIME_PREFIX } from "../loader/runtime-rules.js";
 
 const MIGRATED_KEY = "mylan_storage_ns_v1";
 
@@ -31,6 +32,7 @@ export async function purgeAppData(app) {
   try {
     await caches.delete(sessionCacheName(appKey));
     await caches.delete(STAGING_PREFIX + appKey);
+    await caches.delete(RUNTIME_PREFIX + appKey); // copertine e simili dichiarate in "runtime_cache"
     const slug = getAppSlug(app);
     const cache = await caches.open(MANIFEST_CACHE);
     for (const req of await cache.keys()) {

@@ -12,7 +12,7 @@ MyLAN acts as a trusted HTTPS trampoline and peer-to-peer container:
 * The remote web application is executed inside an iframe at `/session/<key>/`, one key per saved app (derived from the app's stable id, `src/loader/session-key.js`).
 * The iframe is **not** an isolated sandbox: it runs on MyLAN's origin. Each app gets its own namespaced Web Storage (`localStorage` / `sessionStorage` keys stored as `mylan-app:<key>:<name>`), which prevents collisions and accidental reads but is not a security boundary (see [INTEGRATION.md §8](INTEGRATION.md#8-security-model)).
 * MyLAN's outer Service Worker (`sw.js`) intercepts all requests under `/session/<key>/` and routes them over the WebRTC DataChannels of that app's host only, through the MyLAN tab that hosts the frame (`src/loader/sw-relay.js`).
-* Static assets (HTML, CSS, JS modules) are automatically discovered and cached into one cache per app, `mylan-session-v3:<key>`, for instant offline loading and hard-refresh resilience. Only `GET` responses outside `/api/` are cached. Removing the app from the Hub deletes its cache, initial page and Web Storage.
+* Static assets (HTML, CSS, JS modules) are automatically discovered and cached into one cache per app, `mylan-session-v3:<key>`, for instant offline loading and hard-refresh resilience. Only `GET` responses outside `/api/` are cached, plus the `GET` prefixes the app declares in `runtime_cache` (kept in `mylan-runtime:<key>`, see §2.1). Removing the app from the Hub deletes its caches, initial page and Web Storage.
 
 ---
 
@@ -36,6 +36,9 @@ During pairing and initial synchronization, MyLAN queries the remote application
   "media_paths": ["/files/", "/api/stream/"],
   "chunked_uploads": true,
   "update_check": { "url": "/api/version", "field": "shell" },
+  "runtime_cache": [
+    { "prefix": "/api/covers/", "strategy": "stale-while-revalidate", "keep_params": ["size", "v"], "version_param": "v" }
+  ],
   "icons": [
     {
       "src": "/src/icons/icon-192.png",
@@ -45,6 +48,32 @@ During pairing and initial synchronization, MyLAN queries the remote application
   ]
 }
 ```
+
+### 2.1 `runtime_cache` (optional)
+Array (at most 10) of rules for `GET` resources that MyLAN may keep for offline use, also under `/api/`:
+
+| Field | Meaning |
+|---|---|
+| `prefix` | Path prefix on the host, starting with `/` (required) |
+| `strategy` | `cache-first` (default), `stale-while-revalidate` (saved copy at once, background check with `If-None-Match`) or `network-first` (host first, saved copy if it fails or exceeds `timeout_ms`) |
+| `max_entries` | Optional cap on the number of entries of this rule (the oldest go first). Absent (recommended) = no fixed number: only the quota guard below applies |
+| `max_entry_kb` | Default 1024, at most 4096; larger responses are not kept |
+| `timeout_ms` | `network-first` only: 500-15000, default 4000 |
+| `keep_params` | Query parameters that form the cache key (others are ignored); without it the full URL is the key |
+| `version_param` | A URL with this parameter is immutable (served cache-first); a new value replaces the other saved values of the same resource; with the host unreachable and no exact copy, another saved value is served |
+
+Only `200` responses are kept (never `Range` requests or MyLAN fallbacks). With the host unreachable a saved entry is answered immediately; an entry never seen gets `503`. Rules not declared any more are purged at the next install/update.
+
+**Quota guard.** There is no default number of entries. After a write MyLAN checks the storage estimate of its origin
+(`navigator.storage.estimate()`, at most once a minute): only when usage is above 80% of the quota it removes the
+oldest runtime entries (insertion order; other apps' runtime caches first, then the app that just wrote) until usage
+is back to 70%. App pages and files (`mylan-session-*`), the app's rules, IndexedDB and Web Storage are never touched:
+an origin that runs out of quota can be evicted by the browser as a whole, losing all of them. MyLAN also asks the
+browser to make its storage persistent (`navigator.storage.persist()`) when an app is installed or updated.
+
+**Removed resources.** Entries of resources deleted on your host (e.g. the cover of a deleted item) are not reachable
+any more but keep their space until the quota guard needs it. Tell MyLAN to drop them at once with
+`mylan:runtime-cache-drop` (§5.1).
 
 ### Supported Icon Formats:
 * **Binary Images**: PNG, WebP, JPEG, SVG served over DataChannel (automatically converted to data URIs).
@@ -139,6 +168,13 @@ Applications running inside the MyLAN iframe can communicate with the MyLAN pare
 * **`mylan:request-reconnect`**: Requests background WebRTC reconnection if the host connection drops:
   ```javascript
   window.parent.postMessage({ type: "mylan:request-reconnect" }, "*");
+  ```
+* **`mylan:runtime-cache-drop`** `{ paths }`: the resources at these host paths were removed; MyLAN deletes their
+  saved copies (every query/size/version) from your app's runtime cache only, and only paths covered by one of your
+  `runtime_cache` rules (at most 10000 per message; anything else is ignored). Send it when your app learns of the
+  removal (e.g. a sync that reports deleted items):
+  ```javascript
+  window.parent.postMessage({ type: "mylan:runtime-cache-drop", paths: ["/api/covers/42", "/api/covers/43"] }, "*");
   ```
 * **`mylan:app-boot-error`** `{ message }`: sent automatically by the script MyLAN injects (you never send it): the
   page failed to start in its first 10 s (uncaught error, module link `SyntaxError`, script or dynamic import that

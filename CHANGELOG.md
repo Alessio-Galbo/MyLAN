@@ -4,6 +4,44 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+### Added
+- Optional `runtime_cache` rules in the app's `/.well-known/mylan.json`: `GET` resources the app shows from `/api/`
+  (covers, thumbnails) are kept in a per-app cache `mylan-runtime:<key>` (strategies `cache-first`,
+  `stale-while-revalidate`, `network-first`; optional `max_entries`, `max_entry_kb`, `keep_params`, `version_param`) and served
+  at once when the host is unreachable. Undeclared `/api/` responses are still never cached; the cache is removed with
+  the app. Apps saved earlier read their rules once at the next connection.
+
+### Changed
+- `runtime_cache`: `max_entries` is now an optional cap (no default 200, no upper limit of 5000); without it entries
+  are limited only by a quota guard (`src/loader/sw-runtime-quota.js`): when the origin uses more than 80% of its
+  storage quota the oldest runtime entries are removed (other apps first) until 70%, never app files, IndexedDB or
+  Web Storage. Test `node Tools/test_runtime_cache.mjs`.
+
+### Added
+- `mylan:runtime-cache-drop` `{ paths }`: an app tells MyLAN that resources were removed on its host; their saved
+  copies are deleted from that app's runtime cache only (paths covered by its rules).
+- MyLAN asks the browser for persistent storage (`navigator.storage.persist()`) when an app is installed or updated,
+  so the browser does not clear saved apps and their offline data when the device is low on space.
+
+### Fixed
+- With the host off, images an app had already shown from `/api/` (e.g. covers) were broken: they were never cached.
+
+### Fixed
+- After restoring a tab that the phone had put in the background (frozen tab, back/forward cache, changed network)
+  the app did not reconnect by itself: only a page refresh brought the host back. A channel still `open` but no
+  longer answered by the host was even taken as alive, and requests on it hung forever. MyLAN now checks the app's
+  channel whenever the page becomes visible, resumes, gets the network back or the channel closes (no channel, or no
+  answer within 4 s to `GET /.well-known/mylan.json`), closes a dead one and reconnects with the saved token: one
+  attempt at a time, up to six retries after 1-30 s while the page is visible and online, a "Reconnecting..." label
+  (it/en) above the app meanwhile, then `mylan:peer-connected` to the app, without reloading it
+  (`src/ui/viewer-watchdog.js`, `src/loader/channel-probe.js`).
+- Requests in flight on a DataChannel that closes now fail at once (`503` to the app) instead of hanging.
+
+### Changed
+- `mylan:request-reconnect` goes through the same liveness check, so an open but mute channel is replaced too.
+- The peer connection of a reconnection is closed when its channel closes (no orphan peers); the waits for channel
+  opening moved to `src/webrtc/channel-wait.js`.
+
 ## [77ec8c0] - 2026-10-04 - Repair apps that fail to start from a mixed cache
 
 ### Fixed
