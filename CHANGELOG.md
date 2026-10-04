@@ -4,6 +4,8 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+## [17f4939] - 2026-10-04 - Reconnect restored tabs and cache declared app resources
+
 ### Added
 - Optional `runtime_cache` rules in the app's `/.well-known/mylan.json`: `GET` resources the app shows from `/api/`
   (covers, thumbnails) are kept in a per-app cache `mylan-runtime:<key>` (strategies `cache-first`,
