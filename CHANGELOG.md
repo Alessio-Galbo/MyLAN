@@ -4,6 +4,8 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+## [699a087] - 2026-10-04 - Start instantly from cache, covers while connecting, sharp PWA icons
+
 ### Changed
 - An installed app (and the Hub) opens without waiting for the network: the Service Worker answers MyLAN's page and
   its stamped files from its own cache (`mylan-shell-v1`, `src/loader/sw-shell.js`) and `src/boot.js` imports the
