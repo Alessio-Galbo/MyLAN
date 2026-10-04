@@ -1,13 +1,13 @@
 /**
  * Pulizia dei dati locali di un'app rimossa dall'Hub e migrazione una tantum dal vecchio spazio unico.
  */
-import { sessionKeyOf, sessionCacheName, storagePrefix } from "../loader/session-key.js";
-import { SHELL_KEY_PREFIX } from "../loader/html-patcher.js";
-import { MANIFEST_CACHE } from "../ui/pwa-icon.js";
-import { getAppSlug } from "../ui/viewer-meta.js";
-import { rememberHostIce } from "../webrtc/ice-config.js";
-import { forgetVersion, STAGING_PREFIX } from "../loader/app-updater.js";
-import { RUNTIME_PREFIX } from "../loader/runtime-rules.js";
+import { sessionKeyOf, sessionCacheName, storagePrefix } from "../loader/session-key.js?v=76b805b937bb";
+import { SHELL_KEY_PREFIX } from "../loader/html-patcher.js?v=76b805b937bb";
+import { MANIFEST_CACHE } from "../ui/pwa-icon.js?v=76b805b937bb";
+import { getAppSlug } from "../ui/viewer-meta.js?v=76b805b937bb";
+import { rememberHostIce } from "../webrtc/ice-config.js?v=76b805b937bb";
+import { forgetVersion, STAGING_PREFIX } from "../loader/app-updater.js?v=76b805b937bb";
+import { RUNTIME_PREFIX } from "../loader/runtime-rules.js?v=76b805b937bb";
 
 const MIGRATED_KEY = "mylan_storage_ns_v1";
 

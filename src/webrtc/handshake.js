@@ -1,18 +1,18 @@
 /**
  * Esecuzione dell'handshake WebRTC P2P con busta cifrata end-to-end.
  */
-import { t } from "../core/i18n.js";
-import { deriveKey } from "../crypto/kdf.js";
-import { deriveTopic } from "../signaling/topics.js";
-import { sealEnvelope, unsealEnvelope } from "../crypto/envelope.js";
-import { postEnvelope, pollEnvelope } from "../signaling/client.js";
-import { createPeer, createFullOffer, applyAnswer } from "./peer.js";
-import { rememberHostIce, hostIceFor } from "./ice-config.js";
-import { waitForChannelsOpen, setActiveChannels, setWantedOwner } from "./channel.js";
-import { sessionKeyOf } from "../loader/session-key.js";
-import { getOrCreateDeviceId } from "./device-id.js";
-import { getDeviceMeta } from "./device-meta.js";
-import { saveApp } from "../storage/app-registry.js";
+import { t } from "../core/i18n.js?v=76b805b937bb";
+import { deriveKey } from "../crypto/kdf.js?v=76b805b937bb";
+import { deriveTopic } from "../signaling/topics.js?v=76b805b937bb";
+import { sealEnvelope, unsealEnvelope } from "../crypto/envelope.js?v=76b805b937bb";
+import { postEnvelope, pollEnvelope } from "../signaling/client.js?v=76b805b937bb";
+import { createPeer, createFullOffer, applyAnswer } from "./peer.js?v=76b805b937bb";
+import { rememberHostIce, hostIceFor } from "./ice-config.js?v=76b805b937bb";
+import { waitForChannelsOpen, setActiveChannels, setWantedOwner } from "./channel.js?v=76b805b937bb";
+import { sessionKeyOf } from "../loader/session-key.js?v=76b805b937bb";
+import { getOrCreateDeviceId } from "./device-id.js?v=76b805b937bb";
+import { getDeviceMeta } from "./device-meta.js?v=76b805b937bb";
+import { saveApp } from "../storage/app-registry.js?v=76b805b937bb";
 
 export async function executeHandshake(code, onStatus) {
   onStatus(t("portal.connecting"), "loading");

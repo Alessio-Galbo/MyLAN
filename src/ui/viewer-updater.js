@@ -5,13 +5,13 @@
  * l'app sceglie quando ricaricarsi (senza gestore la nuova versione si vede alla prossima apertura). Prima ogni
  * richiesta svuotava la cache e ricaricava l'iframe: un'app che la chiedeva a ogni avvio girava in tondo.
  */
-import { getActiveChannel, getApiChannel, getChannelOwner } from "../webrtc/channel.js";
-import { downloadAppBundle } from "../loader/app-downloader.js";
-import { sessionKeyOf, sessionBaseUrl } from "../loader/session-key.js";
-import { hostVersion, storedVersion } from "../loader/app-updater.js";
-import { hasShellHtml } from "../loader/html-patcher.js";
-import { ensureRuntimeRules } from "../loader/runtime-rules.js";
-import { saveApp } from "../storage/app-registry.js";
+import { getActiveChannel, getApiChannel, getChannelOwner } from "../webrtc/channel.js?v=76b805b937bb";
+import { downloadAppBundle } from "../loader/app-downloader.js?v=76b805b937bb";
+import { sessionKeyOf, sessionBaseUrl } from "../loader/session-key.js?v=76b805b937bb";
+import { hostVersion, storedVersion } from "../loader/app-updater.js?v=76b805b937bb";
+import { hasShellHtml } from "../loader/html-patcher.js?v=76b805b937bb";
+import { ensureRuntimeRules } from "../loader/runtime-rules.js?v=76b805b937bb";
+import { saveApp } from "../storage/app-registry.js?v=76b805b937bb";
 
 const running = new Map();
 

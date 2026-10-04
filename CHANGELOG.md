@@ -4,6 +4,22 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+### Fixed
+- After a publish on GitHub Pages a browser could run old and new MyLAN modules together (Pages lets files be cached
+  for 10 minutes) and break with "does not provide an export named ...". Updates are now atomic: every module,
+  stylesheet and text file is loaded as `?v=<version>`, and `index.html` starts `src/boot.js`, which reads
+  `version.json` without cache and loads only that version's modules (stylesheets of an old cached `index.html` follow
+  it), so a page always runs one consistent version. The Service Worker's `importScripts` carry their own version, so
+  it is reinstalled only when its code changes.
+
+### Added
+- `node Tools/stamp.mjs`: computes the version as a hash of the published files and writes all the stamps and
+  `version.json` (no manual bumps); `--check` fails when a stamp is missing or stale. Run it before every publish
+  (README, "Publishing").
+- `node Tools/test_atomic_update.mjs`: headless proof with an old cached deploy and a new one on the same address
+  (old `index.html` still cached, one module already expired): the new version starts with no errors and every module
+  carries the new stamp; `--no-stamp` reproduces the old failure.
+
 ## [17f4939] - 2026-10-04 - Reconnect restored tabs and cache declared app resources
 
 ### Added

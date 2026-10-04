@@ -1,7 +1,7 @@
 /**
  * Formattatore e validatore del campo di inserimento codice monouso.
  */
-import { t } from "../core/i18n.js";
+import { t } from "../core/i18n.js?v=76b805b937bb";
 
 export function formatCode(raw) {
   const clean = (raw || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();

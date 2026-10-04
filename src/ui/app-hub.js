@@ -1,10 +1,10 @@
 /**
  * Schermata Hub / Indice delle applicazioni salvate e selezione rapida.
  */
-import { t, onLangChange } from "../core/i18n.js";
-import { getSavedApps, getApp, removeApp, touchApp } from "../storage/app-registry.js";
-import { purgeAppData } from "../storage/app-cleanup.js";
-import { createAppCard } from "./app-card.js";
+import { t, onLangChange } from "../core/i18n.js?v=76b805b937bb";
+import { getSavedApps, getApp, removeApp, touchApp } from "../storage/app-registry.js?v=76b805b937bb";
+import { purgeAppData } from "../storage/app-cleanup.js?v=76b805b937bb";
+import { createAppCard } from "./app-card.js?v=76b805b937bb";
 
 export function renderAppHub(container, onLaunchApp, onShowConnect) {
   container.innerHTML = "";

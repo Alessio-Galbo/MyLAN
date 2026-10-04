@@ -1,15 +1,15 @@
 /**
  * Downloader P2P degli asset dell'applicazione e archiviazione in Cache API.
  */
-import { t } from "../core/i18n.js";
-import { sendChannelRequest } from "./channel-fetch.js";
-import { fetchAppMetadata } from "./app-metadata.js";
-import { setMediaPaths } from "./sw-channel-selector.js";
-import { setChunkedUploads } from "./channel-body.js";
-import { buildPatchedHtmlString, saveShellHtml } from "./html-patcher.js";
-import { sessionBaseUrl, sessionCacheName } from "./session-key.js";
-import { refreshCachedFiles, hostVersion, storeVersion } from "./app-updater.js";
-import { saveRuntimeRules } from "./runtime-rules.js";
+import { t } from "../core/i18n.js?v=76b805b937bb";
+import { sendChannelRequest } from "./channel-fetch.js?v=76b805b937bb";
+import { fetchAppMetadata } from "./app-metadata.js?v=76b805b937bb";
+import { setMediaPaths } from "./sw-channel-selector.js?v=76b805b937bb";
+import { setChunkedUploads } from "./channel-body.js?v=76b805b937bb";
+import { buildPatchedHtmlString, saveShellHtml } from "./html-patcher.js?v=76b805b937bb";
+import { sessionBaseUrl, sessionCacheName } from "./session-key.js?v=76b805b937bb";
+import { refreshCachedFiles, hostVersion, storeVersion } from "./app-updater.js?v=76b805b937bb";
+import { saveRuntimeRules } from "./runtime-rules.js?v=76b805b937bb";
 
 function extractAssets(html) {
   const assets = new Set();

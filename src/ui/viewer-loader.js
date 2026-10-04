@@ -2,13 +2,13 @@
  * Preparazione della sessione dell'app aperta e riconnessione in background senza bloccare la cache.
  * Il canale aperto vale solo per l'app che lo possiede: aprendo un'altra app si riconnette al suo host.
  */
-import { getActiveChannel, getChannelOwner, setWantedOwner } from "../webrtc/channel.js";
-import { reconnectPeer } from "../webrtc/reconnect.js";
-import { hasShellHtml } from "../loader/html-patcher.js";
-import { sessionKeyOf, sessionBaseUrl } from "../loader/session-key.js";
-import { setMediaPaths } from "../loader/sw-channel-selector.js";
-import { setChunkedUploads } from "../loader/channel-body.js";
-import { checkAppUpdate } from "./viewer-updater.js";
+import { getActiveChannel, getChannelOwner, setWantedOwner } from "../webrtc/channel.js?v=76b805b937bb";
+import { reconnectPeer } from "../webrtc/reconnect.js?v=76b805b937bb";
+import { hasShellHtml } from "../loader/html-patcher.js?v=76b805b937bb";
+import { sessionKeyOf, sessionBaseUrl } from "../loader/session-key.js?v=76b805b937bb";
+import { setMediaPaths } from "../loader/sw-channel-selector.js?v=76b805b937bb";
+import { setChunkedUploads } from "../loader/channel-body.js?v=76b805b937bb";
+import { checkAppUpdate } from "./viewer-updater.js?v=76b805b937bb";
 
 const reconnecting = new Map(); // chiave app -> riconnessione in corso (Promise<boolean>)
 

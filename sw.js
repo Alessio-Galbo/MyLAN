@@ -1,9 +1,14 @@
 /**
  * Service Worker proxy di MyLAN per intercettare e servire l'app da cache o P2P.
  */
-importScripts("./src/loader/sw-pipe.js?v=14", "./src/loader/sw-manifest.js?v=2", "./src/loader/sw-relay.js?v=1",
-  "./src/loader/sw-runtime-cache.js?v=1", "./src/loader/sw-runtime-store.js?v=2",
-  "./src/loader/sw-runtime-quota.js?v=1");
+// Timbri ?v= scritti da Tools/stamp.mjs (versione del Service Worker): mai a mano.
+importScripts(
+  "./src/loader/sw-pipe.js?v=eab1a0c0f84c",
+  "./src/loader/sw-manifest.js?v=eab1a0c0f84c",
+  "./src/loader/sw-relay.js?v=eab1a0c0f84c",
+  "./src/loader/sw-runtime-cache.js?v=eab1a0c0f84c",
+  "./src/loader/sw-runtime-store.js?v=eab1a0c0f84c",
+  "./src/loader/sw-runtime-quota.js?v=eab1a0c0f84c");
 
 // Una cache per app: "mylan-session-v3:<chiave>" (src/loader/session-key.js). Le vecchie cache uniche vanno via.
 const SESSION_CACHE_PREFIX = "mylan-session-v3:";

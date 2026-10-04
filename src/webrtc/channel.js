@@ -66,4 +66,4 @@ export function getActiveChannel() {
   return activeApiChannel;
 }
 
-export { waitForChannelOpen, waitForChannelsOpen } from "./channel-wait.js";
+export { waitForChannelOpen, waitForChannelsOpen } from "./channel-wait.js?v=76b805b937bb";

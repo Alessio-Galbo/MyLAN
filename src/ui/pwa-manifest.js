@@ -2,8 +2,8 @@
  * Gestione dinamica del Web App Manifest per l'installazione Multi-PWA borderless di ciascuna applicazione.
  * Ordine garantito: icone in CacheStorage -> manifest in CacheStorage -> unico <link rel="manifest"> aggiornato.
  */
-import { getAppSlug } from "./viewer-meta.js";
-import { MANIFEST_CACHE, cacheAppIcons, hashText } from "./pwa-icon.js";
+import { getAppSlug } from "./viewer-meta.js?v=76b805b937bb";
+import { MANIFEST_CACHE, cacheAppIcons, hashText } from "./pwa-icon.js?v=76b805b937bb";
 
 let applySeq = 0;
 

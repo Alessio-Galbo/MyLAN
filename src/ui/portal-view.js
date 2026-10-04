@@ -1,10 +1,10 @@
 /**
  * Assemblatore della vista principale del portale MyLAN con aggiornamento reattivo.
  */
-import { t, onLangChange } from "../core/i18n.js";
-import { createCodeInput, extractCodeFromUrl } from "./code-input.js";
-import { createStatusCard } from "./status-card.js";
-import { createFeaturePills } from "./portal-features.js";
+import { t, onLangChange } from "../core/i18n.js?v=76b805b937bb";
+import { createCodeInput, extractCodeFromUrl } from "./code-input.js?v=76b805b937bb";
+import { createStatusCard } from "./status-card.js?v=76b805b937bb";
+import { createFeaturePills } from "./portal-features.js?v=76b805b937bb";
 
 export function renderPortal(container, onConnect) {
   const card = document.createElement("div");

@@ -3,8 +3,8 @@
  * cache "mylan-runtime:<chiave>", dove il Service Worker le legge (src/loader/sw-runtime-cache.js). Le voci di percorsi
  * non piu' dichiarati vengono tolte; la cache sparisce con l'app (src/storage/app-cleanup.js).
  */
-import { sendChannelRequest } from "./channel-fetch.js";
-import { sessionBaseUrl } from "./session-key.js";
+import { sendChannelRequest } from "./channel-fetch.js?v=76b805b937bb";
+import { sessionBaseUrl } from "./session-key.js?v=76b805b937bb";
 
 export const RUNTIME_PREFIX = "mylan-runtime:";
 const STRATEGIES = ["cache-first", "stale-while-revalidate", "network-first"];

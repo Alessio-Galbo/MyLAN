@@ -3,7 +3,7 @@
  * "open" anche se l'host non c'e' piu' (src/ui/viewer-watchdog.js). Una richiesta leggera a /.well-known/mylan.json:
  * qualunque risposta (anche 404) entro il tempo massimo dimostra che l'host risponde.
  */
-import { sendChannelRequest } from "./channel-fetch.js";
+import { sendChannelRequest } from "./channel-fetch.js?v=76b805b937bb";
 
 export const PROBE_MS = 4000;
 

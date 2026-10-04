@@ -47,6 +47,25 @@ Any web application or PWA can integrate with MyLAN by providing its manifest (`
 
 ---
 
+## Publishing (GitHub Pages)
+
+MyLAN is a static site without a build step. Before every publish run:
+
+```bash
+node Tools/stamp.mjs            # writes ?v=<version> on every import and stylesheet, plus version.json
+node Tools/stamp.mjs --check    # exits 1 if a stamp is missing or stale (run it before pushing)
+node Tools/test_atomic_update.mjs   # optional: headless proof that an update never mixes two versions
+```
+
+GitHub Pages lets browsers keep files for 10 minutes (`max-age=600`), so right after a publish a browser could load
+some old and some new modules and break. The version is a hash of the published files (no number to bump by hand):
+every module is loaded as `...js?v=<version>`, and `src/boot.js` reads `version.json` without cache and starts the
+modules of that version, so a page always runs one consistent version, even with an old `index.html` still cached.
+The Service Worker has its own stamp (`sw.js` and its `importScripts`), so it is reinstalled only when its code
+changes. Do not edit the `?v=` stamps by hand; commit the stamped files and `version.json`.
+
+---
+
 ## License
 
 MIT License. Open-source and free for developers and the community.

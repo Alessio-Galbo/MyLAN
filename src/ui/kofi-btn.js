@@ -1,7 +1,7 @@
 /**
  * Componente pulsante di supporto Ko-fi per MyLAN.
  */
-import { t } from "../core/i18n.js";
+import { t } from "../core/i18n.js?v=76b805b937bb";
 
 const KOFI_URL = "https://ko-fi.com/devangel";
 

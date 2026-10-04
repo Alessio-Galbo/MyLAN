@@ -1,9 +1,9 @@
 /**
  * Modulo di scoperta ed estrazione dei metadati dell'applicazione remota (Manifest/HTML).
  */
-import { t } from "../core/i18n.js";
-import { sendChannelRequest } from "./channel-fetch.js";
-import { parseRuntimeCache } from "./runtime-rules.js";
+import { t } from "../core/i18n.js?v=76b805b937bb";
+import { sendChannelRequest } from "./channel-fetch.js?v=76b805b937bb";
+import { parseRuntimeCache } from "./runtime-rules.js?v=76b805b937bb";
 
 async function fetchJsonSafely(channel, path) {
   try {

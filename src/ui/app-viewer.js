@@ -1,15 +1,15 @@
 /**
  * Visualizzatore a schermo intero per l'applicazione attiva collegata via P2P.
  */
-import { saveApp } from "../storage/app-registry.js";
-import { initBackgroundReconnect, prepareAppSession } from "./viewer-loader.js";
-import { answerUpdateRequest } from "./viewer-updater.js";
-import { openFrame, healOnBootError } from "./viewer-heal.js";
-import { getAppSlug, setFavicon, restoreFavicon, adoptFrameIcon } from "./viewer-meta.js";
-import { applyAppManifest, restoreDefaultManifest } from "./pwa-manifest.js";
-import { watchViewer } from "./viewer-watchdog.js";
-import { sessionKeyOf } from "../loader/session-key.js";
-import { dropRuntimeEntries } from "../loader/runtime-rules.js";
+import { saveApp } from "../storage/app-registry.js?v=76b805b937bb";
+import { initBackgroundReconnect, prepareAppSession } from "./viewer-loader.js?v=76b805b937bb";
+import { answerUpdateRequest } from "./viewer-updater.js?v=76b805b937bb";
+import { openFrame, healOnBootError } from "./viewer-heal.js?v=76b805b937bb";
+import { getAppSlug, setFavicon, restoreFavicon, adoptFrameIcon } from "./viewer-meta.js?v=76b805b937bb";
+import { applyAppManifest, restoreDefaultManifest } from "./pwa-manifest.js?v=76b805b937bb";
+import { watchViewer } from "./viewer-watchdog.js?v=76b805b937bb";
+import { sessionKeyOf } from "../loader/session-key.js?v=76b805b937bb";
+import { dropRuntimeEntries } from "../loader/runtime-rules.js?v=76b805b937bb";
 
 export { getAppSlug };
 

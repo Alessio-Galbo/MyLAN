@@ -1,17 +1,17 @@
 /**
  * Orchestratore principale dell'applicazione MyLAN: hub, portale e visualizzatore.
  */
-import { initI18n } from "./core/i18n.js";
-import { initTheme } from "./core/theme.js";
-import { renderTopBar } from "./ui/top-bar.js";
-import { renderPortal } from "./ui/portal-view.js";
-import { renderAppHub } from "./ui/app-hub.js";
-import { renderAppViewer } from "./ui/app-viewer.js";
-import { extractCodeFromUrl } from "./ui/code-input.js";
-import { initServiceWorkerBridge } from "./loader/sw-bridge.js";
-import { getSavedApps, findAppByQuery } from "./storage/app-registry.js";
-import { connectAndSyncApp } from "./core/launcher.js";
-import { migrateLegacyStorage } from "./storage/app-cleanup.js";
+import { initI18n } from "./core/i18n.js?v=76b805b937bb";
+import { initTheme } from "./core/theme.js?v=76b805b937bb";
+import { renderTopBar } from "./ui/top-bar.js?v=76b805b937bb";
+import { renderPortal } from "./ui/portal-view.js?v=76b805b937bb";
+import { renderAppHub } from "./ui/app-hub.js?v=76b805b937bb";
+import { renderAppViewer } from "./ui/app-viewer.js?v=76b805b937bb";
+import { extractCodeFromUrl } from "./ui/code-input.js?v=76b805b937bb";
+import { initServiceWorkerBridge } from "./loader/sw-bridge.js?v=76b805b937bb";
+import { getSavedApps, findAppByQuery } from "./storage/app-registry.js?v=76b805b937bb";
+import { connectAndSyncApp } from "./core/launcher.js?v=76b805b937bb";
+import { migrateLegacyStorage } from "./storage/app-cleanup.js?v=76b805b937bb";
 
 let contentContainer = null;
 let activeViewer = null;
@@ -80,4 +80,6 @@ async function init() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", init);
+// Caricato da src/boot.js dopo version.json: la pagina puo' essere gia' pronta.
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+else init();
