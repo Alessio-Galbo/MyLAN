@@ -30,7 +30,9 @@
     "status_connected": "Canale P2P attivo",
     "status_reconnecting": "Riconnessione all'host...",
     "status_offline": "Modalità offline",
-    "reconnect_btn": "Riconnetti"
+    "reconnect_btn": "Riconnetti",
+    "boot_repairing": "Riparazione dell'app in corso: scarico dall'host una copia completa e coerente...",
+    "boot_error_offline": "L'app non è partita e l'host non è raggiungibile: la copia salvata è incompleta. Riapri l'app quando l'host è acceso."
   },
   "sync": {
     "title": "Sincronizzazione applicazione",

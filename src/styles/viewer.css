@@ -36,3 +36,13 @@ html.mylan-viewer-open body {
 html.mylan-viewer-open #app-root {
   min-height: 0;
 }
+
+/* Avviso di riparazione / app non partita (src/ui/viewer-heal.js), sopra l'iframe. */
+.viewer-boot-banner {
+  flex: 0 0 auto;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  color: #f1f5f9;
+  background: #b45309;
+}

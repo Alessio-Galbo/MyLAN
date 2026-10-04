@@ -127,11 +127,21 @@ running it can also update its title and icon at any time with the `mylan:regist
 * **Updates** (`src/ui/viewer-updater.js`): after each (re)connection MyLAN reads your version (`update_check`, or a
   hash of `/`). If it changed, every file already in the app's cache is downloaded again in the background (six at a
   time) into a staging cache and copied over the live cache only when all succeeded: the app keeps working from the old
-  copy meanwhile, and a failed update leaves it untouched. Then your frame receives `mylan:app-updated`: reload when it
-  suits you (e.g. not during playback); without a handler the new version shows at the next open. `mylan:sync-update`
+  copy meanwhile, and a failed update leaves it untouched. Then your frame receives `mylan:app-updated`: answer
+  `mylan:app-updated-ack` and reload when it suits you (e.g. not during playback). Without the acknowledgement within
+  5 s MyLAN assumes the app is stuck and reloads the iframe itself. If the channel is already open when the app is
+  opened (e.g. from the Hub) and the version differs or is unknown, the update runs BEFORE the iframe loads, so old and
+  new files are never mixed. `mylan:sync-update`
   asks for the same check at any time (e.g. a "check for updates" button) and is answered with
   `mylan:update-result` `{changed: true | false | null}` (`null`: host not reachable now). Never send it on every
   start-up: MyLAN already checks by itself.
+* **Boot repair** (`src/ui/viewer-heal.js`): the script MyLAN injects in your page reports to MyLAN, once, any start-up
+  failure in the first 10 s (uncaught script error, including module `SyntaxError`s such as "does not provide an export
+  named", a `<script>` that fails to load, a failed dynamic `import()`) as `mylan:app-boot-error`. A cached copy that
+  mixes files of two versions fails exactly like this. MyLAN then, once per app and per session, downloads a complete
+  consistent copy from the host (every cached file plus the initial page, swapped in only if all arrive) and reloads the
+  iframe. If the host cannot be reached, a banner above the app says so instead of leaving a dead page. Your app needs
+  nothing for this; avoid uncaught errors at start-up that are not real failures, as they trigger one repair.
 
 What your frontend should do:
 

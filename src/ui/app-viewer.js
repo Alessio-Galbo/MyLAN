@@ -4,7 +4,8 @@
 import { saveApp } from "../storage/app-registry.js";
 import { initBackgroundReconnect, prepareAppSession } from "./viewer-loader.js";
 import { answerUpdateRequest } from "./viewer-updater.js";
-import { getAppSlug, setFavicon, restoreFavicon } from "./viewer-meta.js";
+import { openFrame, healOnBootError } from "./viewer-heal.js";
+import { getAppSlug, setFavicon, restoreFavicon, adoptFrameIcon } from "./viewer-meta.js";
 import { applyAppManifest, restoreDefaultManifest } from "./pwa-manifest.js";
 
 export { getAppSlug };
@@ -33,21 +34,10 @@ export function renderAppViewer(container, appData, onExit) {
   const iframe = document.createElement("iframe");
   iframe.className = "viewer-iframe";
   iframe.setAttribute("allow", "autoplay; fullscreen; microphone; camera");
-  iframe.src = sessionUrl;
   viewer.appendChild(iframe);
+  openFrame(iframe, appData, sessionUrl); // con il canale gia' aperto: prima l'eventuale aggiornamento, poi l'app
 
-  iframe.addEventListener("load", () => {
-    try {
-      const doc = iframe.contentDocument;
-      const link = doc?.querySelector?.("link[rel*='icon']");
-      if (link?.href && (!appData.icon || appData.icon.startsWith("<svg")) && !link.href.includes("/session/")) {
-        appData.icon = link.href;
-        setFavicon(faviconEl, appData.icon);
-        syncManifest();
-        saveApp(appData);
-      }
-    } catch {}
-  });
+  iframe.addEventListener("load", () => adoptFrameIcon(iframe, appData, faviconEl, () => { syncManifest(); saveApp(appData); }));
 
   const onPopState = () => { cleanup(); onExit(); };
 
@@ -58,6 +48,8 @@ export function renderAppViewer(container, appData, onExit) {
       initBackgroundReconnect(iframe, appData);
     } else if (evt.data?.type === "mylan:sync-update") {
       answerUpdateRequest(iframe, appData);
+    } else if (evt.data?.type === "mylan:app-boot-error" && evt.source === iframe.contentWindow) {
+      healOnBootError(iframe, appData, evt.data.message);
     } else if (evt.data?.type === "mylan:register" && evt.data.meta) {
       const meta = evt.data.meta;
       if (meta.title) appData.title = meta.title;

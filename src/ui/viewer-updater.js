@@ -40,12 +40,29 @@ async function run(iframe, appData, appKey) {
     if (!now) return null;
     if (now === storedVersion(appKey)) return false;
     await downloadAppBundle(channel, appKey, () => {}, keepMeta, false);
-    try { iframe?.contentWindow?.postMessage({ type: "mylan:app-updated" }, "*"); } catch {}
+    if (iframe) notifyUpdated(iframe, appKey);
     return true;
   } catch (err) {
     console.warn("[MyLAN] Update sync failed:", err);
     return null;
   }
+}
+
+// "mylan:app-updated" all'app; se entro ACK_MS non conferma ("mylan:app-updated-ack") ne' si ricarica, l'app e'
+// bloccata (es. non e' partita): la ricarica MyLAN dalla copia appena aggiornata.
+const ACK_MS = 5000;
+function notifyUpdated(iframe, appKey) {
+  let acked = false;
+  const onAck = (e) => { if (e.data?.type === "mylan:app-updated-ack" && e.source === iframe.contentWindow) acked = true; };
+  const onLoad = () => { acked = true; };
+  window.addEventListener("message", onAck);
+  iframe.addEventListener("load", onLoad, { once: true });
+  try { iframe.contentWindow?.postMessage({ type: "mylan:app-updated" }, "*"); } catch {}
+  setTimeout(() => {
+    window.removeEventListener("message", onAck);
+    iframe.removeEventListener("load", onLoad);
+    if (!acked && iframe.isConnected) iframe.src = sessionBaseUrl(appKey);
+  }, ACK_MS);
 }
 
 /** L'app ha chiesto un controllo ("mylan:sync-update"): esito in "mylan:update-result" {changed: true|false|null}. */

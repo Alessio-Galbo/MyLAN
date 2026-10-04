@@ -30,7 +30,9 @@
     "status_connected": "P2P channel active",
     "status_reconnecting": "Reconnecting to host...",
     "status_offline": "Offline mode",
-    "reconnect_btn": "Reconnect"
+    "reconnect_btn": "Reconnect",
+    "boot_repairing": "Repairing the app: downloading a complete, consistent copy from the host...",
+    "boot_error_offline": "The app did not start and the host is not reachable: the saved copy is incomplete. Open the app again when the host is on."
   },
   "sync": {
     "title": "Syncing Application",

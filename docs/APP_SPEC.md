@@ -140,6 +140,11 @@ Applications running inside the MyLAN iframe can communicate with the MyLAN pare
   ```javascript
   window.parent.postMessage({ type: "mylan:request-reconnect" }, "*");
   ```
+* **`mylan:app-boot-error`** `{ message }`: sent automatically by the script MyLAN injects (you never send it): the
+  page failed to start in its first 10 s (uncaught error, module link `SyntaxError`, script or dynamic import that
+  failed to load). MyLAN repairs the cached copy once per session and reloads the iframe, or shows a banner if the host
+  is unreachable.
+* **`mylan:app-updated-ack`**: answer to `mylan:app-updated` (see 5.2).
 * **`mylan:sync-update`**: Asks MyLAN to compare the host version with the cached copy now (e.g. a "check for
   updates" button). MyLAN already does this after every (re)connection, so do not send it at start-up. Answered with
   `mylan:update-result`; if the version changed MyLAN refreshes the cache in the background and sends `mylan:app-updated`:
@@ -151,7 +156,8 @@ Applications running inside the MyLAN iframe can communicate with the MyLAN pare
 * **`mylan:peer-connected`**: Notifies the embedded app that the P2P WebRTC DataChannel is open and operational.
 * **`mylan:peer-disconnected`**: Notifies the embedded app that P2P connectivity was lost (prompting the app to enter offline/read-only mode).
 * **`mylan:app-updated`**: The cached copy of the app was replaced with the host's new version (all files downloaded
-  in the background). Reload when convenient; the iframe is never reloaded by MyLAN.
+  in the background). Answer `{ type: "mylan:app-updated-ack" }` to the parent within 5 s and reload when convenient;
+  without the answer (or a reload) MyLAN considers the app stuck and reloads the iframe itself.
 * **`mylan:update-result`** `{ changed }`: answer to `mylan:sync-update`: `true` updated (then `mylan:app-updated`),
   `false` already current, `null` host not reachable now.
 

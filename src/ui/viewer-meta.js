@@ -37,3 +37,15 @@ export function restoreFavicon(el, prevFavicon, prevType) {
   }
   return newLink;
 }
+
+/** Icona dichiarata dalla pagina dell'app (se MyLAN non ne ha una migliore): favicon e installazione aggiornate. */
+export function adoptFrameIcon(iframe, appData, faviconEl, onChange) {
+  try {
+    const link = iframe.contentDocument?.querySelector?.("link[rel*='icon']");
+    if (link?.href && (!appData.icon || appData.icon.startsWith("<svg")) && !link.href.includes("/session/")) {
+      appData.icon = link.href;
+      setFavicon(faviconEl, appData.icon);
+      onChange();
+    }
+  } catch {}
+}

@@ -3,8 +3,26 @@
  */
 import { installStorageShim } from "./frame-storage-shim.js";
 
+// Errori di avvio (primi 10 s): errore di script non gestito (anche SyntaxError di collegamento dei moduli), script
+// che non si carica, import dinamico fallito. Uno solo a MyLAN ("mylan:app-boot-error"): src/ui/viewer-heal.js.
+const BOOT_WATCH = `(function(){
+  var t0 = Date.now(), sent = false;
+  function report(m) { if (sent || Date.now() - t0 > 10000) return; sent = true;
+    try { parent.postMessage({ type: "mylan:app-boot-error", message: String(m || "error").slice(0, 300) }, "*"); } catch (e) {} }
+  addEventListener("error", function(e) {
+    var tg = e.target;
+    if (e instanceof ErrorEvent) report(e.message);
+    else if (tg && tg.tagName === "SCRIPT") report("script " + (tg.src || ""));
+  }, true);
+  addEventListener("unhandledrejection", function(e) {
+    var r = e.reason || {}, m = String(r.message || r);
+    if (r.name === "SyntaxError" || /dynamically imported module|Importing a module script failed/.test(m)) report(m);
+  });
+})();`;
+
 export function buildSandboxBridgeScript(baseSessionUrl, storagePrefix) {
   return `<base href="${baseSessionUrl}"><script>
+${BOOT_WATCH}
 (${installStorageShim.toString()})(${JSON.stringify(storagePrefix)});
 (function(){
   const b = "${baseSessionUrl}";

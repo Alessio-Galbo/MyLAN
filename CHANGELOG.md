@@ -4,6 +4,18 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+### Fixed
+- An app whose cached copy mixed files of two versions died at start (e.g. "does not provide an export named ...") and
+  stayed dead. MyLAN now repairs it by itself: the injected script reports start-up failures (`mylan:app-boot-error`,
+  first 10 s), and MyLAN downloads a complete consistent copy from the host once per session and reloads the iframe;
+  with the host unreachable a banner explains it (it/en). Devices that used earlier versions recover just by opening
+  the app, with no removal from the Hub and no clearing of site data.
+
+### Changed
+- With the channel already open, an app whose version differs or is unknown (caches made by earlier MyLAN versions)
+  is updated before the iframe loads, so old and new files are never mixed.
+- After `mylan:app-updated` MyLAN waits 5 s for `mylan:app-updated-ack` (or a reload); a stuck app is reloaded.
+
 ## [de94c18] - 2026-10-04 - Cache-first apps, background updates and faster signaling
 
 ### Fixed
