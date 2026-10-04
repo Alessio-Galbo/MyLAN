@@ -1,7 +1,8 @@
 /**
  * Formattatore e validatore del campo di inserimento codice monouso.
  */
-import { t } from "../core/i18n.js?v=aa3afb9e1dd9";
+import { t } from "../core/i18n.js?v=e19f7df8665d";
+import { protocolOfLink } from "../crypto/invite-v2.js?v=e19f7df8665d";
 
 export function formatCode(raw) {
   const clean = (raw || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
@@ -22,6 +23,11 @@ export function extractCodeFromUrl() {
   const hashMatch = (window.location.hash || "").match(/[#&](?:i|code)=([^&]+)/);
   if (hashMatch) return formatCode(decodeURIComponent(hashMatch[1]));
   return "";
+}
+
+/** Protocollo d'invito del link aperto (src/crypto/invite-v2.js): 1 solo per i link senza "p" degli host meno recenti. */
+export function inviteProtocolFromUrl() {
+  return protocolOfLink(window.location.search, window.location.hash);
 }
 
 export function clearUrlParams() {

@@ -38,7 +38,8 @@ Phone browser (HTTPS origin: GitHub Pages)                    Your host (PC, NAS
 ```
 
 1. The host creates a one-time **invite code** (12 characters, shown as `XXXX-XXXX-XXXX`) and shares a link
-   `https://<user>.github.io/MyLAN/?i=XXXXXXXXXXXX` (also accepted: `?code=`, `#i=`, `#code=`).
+   `https://<user>.github.io/MyLAN/#i=XXXXXXXXXXXX&p=2` (also accepted: `?i=`, `?code=`, `#code=`; `p=2` selects the
+   invite protocol 2 of §5, a link without `p` uses protocol 1).
 2. The phone opens the link; MyLAN creates a WebRTC offer, encrypts it with a key derived from the code and posts it
    to a signaling topic. The host polls the topic, asks its user to approve, and posts an encrypted answer.
 3. The two DataChannels open directly between phone and host. From now on **no app data passes through any server**.
@@ -67,7 +68,7 @@ Fields read by MyLAN (`src/loader/app-metadata.js`):
 | `icon` | One icon for the Hub and the tab: a path on your host, a `data:` URI or raw inline `<svg ...>` markup |
 | `icons[]` | All of them (sizes and `purpose`) go into the installed PWA's manifest: declare 192 and 512 px, `any` and `maskable` (APP_SPEC §2 "Recommended icon set"). For the Hub, when `icon` is missing: first `.svg`, else a `192` size, else the first entry |
 | `media_paths[]` | Optional path prefixes (each starting with `/`) to route over the `mylan-media` channel |
-| `chunked_uploads` | `true` if your host accepts request bodies over 64 KB sent as binary frames (APP_SPEC §4.1); without it such requests get a local `413` |
+| `chunked_uploads` | `true` if your host accepts larger request bodies (JSON message over 64 KB, about 46 KB of body) sent as binary frames (APP_SPEC §4.1); without it such requests get a local `413` |
 | `update_check` | Optional `{ "url": "/api/version", "field": "shell" }`: a GET path on your host (JSON) and the field holding the version of your frontend files. MyLAN compares it with the cached copy after each (re)connection; without it MyLAN compares a hash of your root HTML (§4 "Updates") |
 | `runtime_cache` | Optional list of `GET` path prefixes (also under `/api/`) that MyLAN may keep for offline use, e.g. covers or thumbnails already seen (§4 "Runtime cache") |
 | `version` | Informational |
@@ -204,10 +205,27 @@ MyLAN ships only the browser side. Your host needs a small companion (any langua
 `aiortc` for Python, `node-datachannel` or `werift` for Node, `pion` for Go):
 
 1. **Invite code**: 12 random characters `[A-Z0-9]`. Normalization: strip non-alphanumerics, upper-case.
-2. **Key**: HKDF-SHA256 over the normalized code, salt `MyLAN-Remote-V1-Salt`, info `handshake` -> AES-256-GCM key.
-3. **Topics**: `mylan-<prefix>-` + first 20 hex chars of `SHA-256("ntfy-topic-<prefix>-<normalized code>")`,
-   with prefixes `offer` / `answer` (first pairing) and `reconnect-offer` / `reconnect-answer` (return visits,
-   using the reconnect token in place of the code; tokens longer than 16 characters are not normalized).
+2. **Invite keys and topics (protocol 2, use this one)**:
+   - `master = PBKDF2-HMAC-SHA256(normalized code, salt "MyLAN-Remote-V2-Invite", 200000 iterations, 32 bytes)`;
+   - `HKDF-SHA256(master, salt "MyLAN-Remote-V2-HKDF", info, length)` with info `v2-offer` (32 bytes: AES-256-GCM
+     key of the offer, browser -> host), `v2-answer` (32 bytes: key of the answer or refusal, host -> browser),
+     `v2-topic-offer` and `v2-topic-answer` (16 bytes each);
+   - topics `mylan2-offer-<hex of the 16 bytes>` and `mylan2-answer-<hex>`.
+   Compute it once per invite, off your event loop (about 30-70 ms on a PC). Share links with `p=2` (`#i=CODE&p=2`):
+   MyLAN uses protocol 2 for them and for codes typed by hand. Listen **only** on the protocol 2 topics: also
+   listening on protocol 1 topics would give an observer the fast check that protocol 2 removes (below).
+   Test vector: code `K7QM-4XRD-P2HW` -> master `0be70dfb...c8794d`, offer topic
+   `mylan2-offer-08c80141ca1c0cd6723becc801bd044a`, answer topic `mylan2-answer-3bb82ff2fdfea75b11439933af7b0f56`
+   (full vector in `Tools/test_invite_v2.mjs`).
+   *Why*: the code has 60 bits. In protocol 1 the topic was a single SHA-256 of the code, so anyone who sees topic
+   names on the relay could try every code offline cheaply and then open the answer (which carries the long-lived
+   reconnect token). Protocol 2 makes each guess cost 200000 PBKDF2 rounds and never reveals the code in a topic.
+3. **Protocol 1 (older hosts, links without `p`)**: key = HKDF-SHA256 over the normalized code, salt
+   `MyLAN-Remote-V1-Salt`, info `handshake` (one key for both directions); topics `mylan-<prefix>-` + first 20 hex
+   chars of `SHA-256("ntfy-topic-<prefix>-<normalized code>")` with prefixes `offer` / `answer`. MyLAN still speaks
+   it for such links. **Return visits** keep this derivation with the reconnect token (256 random bits, so no
+   guessing) in place of the code: prefixes `reconnect-offer` / `reconnect-answer`; tokens longer than 16
+   characters are not normalized.
 4. **Envelope**: base64url (no padding) of `IV (12 bytes) || AES-GCM ciphertext+tag` of a JSON object; keep it under 4 KB.
 5. **Signaling relay**: `POST https://ntfy.sh/<topic>` with the envelope as body; read with
    `GET https://ntfy.sh/<topic>/json?since=...` (MyLAN keeps this stream open, so your answer is read as soon as it is
@@ -223,7 +241,12 @@ MyLAN ships only the browser side. Your host needs a small companion (any langua
    the channel it arrived on, using the format in APP_SPEC §4; honour `{id, type:"abort"}` messages.
 9. **Bridge**: map each request (`method`, `path`, `headers`, `body`) to your HTTP app and stream the response
    back in chunks of at most 64 KB. `body` is the base64 of the exact request bytes: decode it to bytes, not to text.
-   Bodies over 64 KB arrive only if you declare `"chunked_uploads": true`: the JSON then carries `body: ""`,
+   Answer every request: MyLAN fails a request with `504` after 130 s without any message for it (start or chunk)
+   and sends `{id, type:"abort"}`; a good host answers within 120 s (even just with an error status). Serve a
+   bounded number of requests per channel at once and queue the rest (MyLAN may send hundreds together on the
+   first start).
+   Bodies whose JSON message would exceed 64 KB (about 46 KB of body) arrive only if you declare
+   `"chunked_uploads": true`: the JSON then carries `body: ""`,
    `body_chunked: true`, `body_size: N`, followed by binary frames `0x42 | idLen | more | id | bytes` (up to 60 KB of
    payload each); handle the request after the frame with `more = 0`. Without the flag MyLAN answers `413` locally
    and nothing is sent (APP_SPEC §4.1). Treat `x-device-id` as an identifier, not as proof of identity: authorize with
@@ -359,7 +382,10 @@ publishes their own MyLAN on a domain they own.
 | No TURN shipped | Some network pairs (CGNAT on both sides, UDP blocked) cannot connect | Host-side fixed UDP port during the invite; another network; IPv6; a host-provided TURN (`ice`, §6) |
 | ntfy.sh dependency for signaling | If ntfy.sh is down or rate-limits (HTTP 429), pairing waits or fails | Retry later; reconnect handles 429 with back-off |
 | Apps share one origin | A malicious app can read other apps' data and tokens through `top.localStorage`, `top.document`, `about:blank` or IndexedDB (§8.1) | Connect only to trusted hosts; real isolation needs one origin per app (§8.2) |
-| Request bodies over 64 KB | Sent only if the app declares `"chunked_uploads": true` and the host reads binary frames; otherwise a local `413` | Declare the flag and support chunked bodies (§5.9), or upload in smaller requests |
+| Request bodies over about 46 KB (JSON message over 64 KB) | Sent only if the app declares `"chunked_uploads": true` and the host reads binary frames; otherwise a local `413` | Declare the flag and support chunked bodies (§5.9), or upload in smaller requests |
+| Invite code of 60 bits | With protocol 2 (§5) each guess costs 200000 PBKDF2 rounds and topic names do not reveal the code, but an observer of the relay with a lot of computing power could still try codes during the invite's life | Keep invites short-lived and single-use; return visits use 256-bit tokens |
+| Invite links of older hosts (no `p`) | They use protocol 1, cheap to guess offline for an observer of the relay | Update the host to protocol 2 (links with `p=2`) |
+| Requests silent for 130 s | Failed with `504` and aborted on the host (APP_SPEC §4.1) | Answer within 120 s; long-polling must return before that |
 | Storage not namespaced everywhere | IndexedDB, your own cache names, cookies and Workers are shared by all apps on the origin | Use app-specific database and cache names |
 | Data from older versions | Versions with one shared space are migrated once at first start: non-MyLAN keys are **copied** into each saved app's namespace; the originals are kept (the origin may host other sites of the same account) | Nothing to do; old keys can be cleared by the user |
 | No WebSockets to the host | WebSockets to MyLAN's origin are stubbed | Use HTTP polling / long-polling over `/api/` |

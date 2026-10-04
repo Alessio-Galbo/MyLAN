@@ -26,3 +26,9 @@ Questo registro documenta gli script Python di supporto e manutenzione per il re
 ## 4. `test_atomic_update.mjs` (+ `atomic_update_fixture.mjs`)
 - **Scopo:** Prova in Chrome headless che gli aggiornamenti di MyLAN non mescolano mai due versioni, su un server che si comporta come GitHub Pages (query ignorata, `max-age=600`, ETag/304) con tre pubblicazioni finte ("old", "new", "newer": export diverso in `src/core/theme.js`). A) senza Service Worker: `index.html` vecchio in cache e un modulo scaduto -> parte la nuova versione intera (`version.json`). B) con il Service Worker (`src/loader/sw-shell.js`): il lancio dopo la pubblicazione parte subito dalla cache con la versione vecchia intera, quello dopo con la nuova senza chiedere file alla rete (scaricata tutta in background); un modulo tolto dalla cache con il server gia' su un'altra versione viene rifiutato (503) e `src/boot.js` riparte con la versione pubblicata. `--no-stamp` rifa' A senza timbri e deve riprodurre il guasto ("does not provide an export named ...").
 - **Esecuzione:** `node Tools/test_atomic_update.mjs [--no-stamp] [--port=18531] [--cdp=9631]`; usa `.claude/skills/headless-chrome-cdp/scripts/cdp.mjs` (o `CDP_LIB=<percorso di cdp.mjs>`). Copie temporanee in `%TEMP%`, cancellate alla fine.
+
+---
+
+## 5. `test_invite_v2.mjs`
+- **Scopo:** Prova il protocollo d'invito (`src/crypto/invite-v2.js`, docs/INTEGRATION.md §5) in Node senza rete: vettore fissato del protocollo 2 (PBKDF2-SHA256 200000 + HKDF, deve coincidere con quello dell'host), busta della risposta che si apre solo con la chiave della risposta, topic che non contengono il codice, protocollo 1 ancora disponibile per i link senza `p` e scelta del protocollo dal link (`p=2` -> 2, link senza `p` -> 1, codice digitato -> 2).
+- **Esecuzione:** `node Tools/test_invite_v2.mjs`

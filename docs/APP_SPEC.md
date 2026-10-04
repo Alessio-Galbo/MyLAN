@@ -123,9 +123,10 @@ Requests intercepted by MyLAN's Service Worker are streamed over the appropriate
 }
 ```
 
-* **`body`**: base64 of the **exact** request bytes (JSON, text, `Blob`, files, `FormData` multipart), up to 64 KB. Decode it to bytes, never to text. The same value is also sent as `body_b64` for compatibility with older hosts.
-* **Bodies over 64 KB** (chunked variant), only when the app declares `"chunked_uploads": true` in `/.well-known/mylan.json`: the JSON carries `"body": ""`, `"body_chunked": true` and `"body_size": N`, and is followed on the same channel by binary frames in the format of §4.3 (`0x42` + ID length + `more` flag + ASCII request ID + up to 60 KB of payload). The host concatenates the payloads and handles the request after the frame with `more = 0`.
-* Without the flag, a body over 64 KB is never sent: MyLAN answers the app locally with HTTP `413`.
+* **`body`**: base64 of the **exact** request bytes (JSON, text, `Blob`, files, `FormData` multipart). Decode it to bytes, never to text. The whole JSON message must fit one DataChannel message (64 KB, the usual `a=max-message-size`), so about 46 KB of body. Earlier MyLAN versions also sent the same value as `body_b64`; it is not sent any more (both copies made messages over ~24 KB of body exceed the limit, and the browser refused to send them).
+* **Larger requests** (chunked variant), only when the app declares `"chunked_uploads": true` in `/.well-known/mylan.json`: the JSON carries `"body": ""`, `"body_chunked": true` and `"body_size": N`, and is followed on the same channel by binary frames in the format of §4.3 (`0x42` + ID length + `more` flag + ASCII request ID + up to 60 KB of payload). The host concatenates the payloads and handles the request after the frame with `more = 0`.
+* Without the flag, a request that does not fit one message is never sent: MyLAN answers the app locally with HTTP `413`.
+* **No answer**: if no message of a request (start or chunk) arrives for 130 s, MyLAN sends `{"id": ..., "type": "abort"}` and fails the request with `504`. Each new message of the request restarts the 130 s.
 
 ### 4.2 Host Response Start (Headers):
 ```json

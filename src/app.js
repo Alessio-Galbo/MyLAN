@@ -1,23 +1,23 @@
 /**
  * Orchestratore principale dell'applicazione MyLAN: hub, portale e visualizzatore.
  */
-import { initI18n } from "./core/i18n.js?v=aa3afb9e1dd9";
-import { initTheme } from "./core/theme.js?v=aa3afb9e1dd9";
-import { renderTopBar } from "./ui/top-bar.js?v=aa3afb9e1dd9";
-import { renderPortal } from "./ui/portal-view.js?v=aa3afb9e1dd9";
-import { renderAppHub } from "./ui/app-hub.js?v=aa3afb9e1dd9";
-import { renderAppViewer } from "./ui/app-viewer.js?v=aa3afb9e1dd9";
-import { extractCodeFromUrl } from "./ui/code-input.js?v=aa3afb9e1dd9";
-import { initServiceWorkerBridge } from "./loader/sw-bridge.js?v=aa3afb9e1dd9";
-import { getSavedApps, findAppByQuery } from "./storage/app-registry.js?v=aa3afb9e1dd9";
-import { connectAndSyncApp } from "./core/launcher.js?v=aa3afb9e1dd9";
-import { migrateLegacyStorage } from "./storage/app-cleanup.js?v=aa3afb9e1dd9";
+import { initI18n } from "./core/i18n.js?v=e19f7df8665d";
+import { initTheme } from "./core/theme.js?v=e19f7df8665d";
+import { renderTopBar } from "./ui/top-bar.js?v=e19f7df8665d";
+import { renderPortal } from "./ui/portal-view.js?v=e19f7df8665d";
+import { renderAppHub } from "./ui/app-hub.js?v=e19f7df8665d";
+import { renderAppViewer } from "./ui/app-viewer.js?v=e19f7df8665d";
+import { extractCodeFromUrl } from "./ui/code-input.js?v=e19f7df8665d";
+import { initServiceWorkerBridge } from "./loader/sw-bridge.js?v=e19f7df8665d";
+import { getSavedApps, findAppByQuery } from "./storage/app-registry.js?v=e19f7df8665d";
+import { connectAndSyncApp } from "./core/launcher.js?v=e19f7df8665d";
+import { migrateLegacyStorage } from "./storage/app-cleanup.js?v=e19f7df8665d";
 
 let contentContainer = null;
 let activeViewer = null;
 
-function handleConnect(code, statusCard, onFinish) {
-  connectAndSyncApp(code, statusCard, contentContainer, launchViewer, onFinish);
+function handleConnect(code, statusCard, onFinish, protocol) {
+  connectAndSyncApp(code, statusCard, contentContainer, launchViewer, onFinish, protocol);
 }
 
 function launchViewer(appData) {

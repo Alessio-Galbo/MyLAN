@@ -19,7 +19,7 @@ MyLAN is a lightweight, zero-dependency, open-source client portal and springboa
 
 - **Zero Open Ports**: MyLAN itself needs no router port forwarding, no UPnP and no public IP exposure: it is a static site and only uses outbound connections. An app host may optionally open one UDP port on its router, only while an invite is pending, to get through mobile CGNAT (see [docs/INTEGRATION.md](docs/INTEGRATION.md#6-the-p2p-link-stun-by-default-optional-host-turn)).
 - **Zero Cloud Accounts**: Direct end-to-end connection between devices without third-party VPNs or cloud relaying.
-- **Encrypted Signaling**: Ephemeral, zero-knowledge handshake using WebCrypto (HKDF-SHA256 & AES-256-GCM).
+- **Encrypted Signaling**: Ephemeral, zero-knowledge handshake using WebCrypto (PBKDF2-SHA256 + HKDF-SHA256 & AES-256-GCM, one key per direction).
 - **NAT Traversal (STUN by default)**: Public STUN servers for direct hole punching; MyLAN ships no TURN relay (paid or capped relays are deliberately not used). A host app may send its own ICE servers (e.g. a self-hosted TURN) in the encrypted answer, and MyLAN then uses them for that app. Without them, if both networks block a direct connection (e.g. symmetric 4G/5G CGNAT on both sides), MyLAN shows a clear message instead of waiting forever.
 - **Saved Apps Hub**: Launcher for previously connected applications.
 - **Per-App PWA Install**: Install the MyLAN hub, or a single app through its link `?app=<slug>` so the installed PWA opens that app directly with its own name and icon.

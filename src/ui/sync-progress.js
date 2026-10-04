@@ -1,8 +1,8 @@
 /**
  * Componente per la schermata di download e sincronizzazione con progress bar.
  */
-import { t } from "../core/i18n.js?v=aa3afb9e1dd9";
-import { ICON_ZAP } from "./icons.js?v=aa3afb9e1dd9";
+import { t } from "../core/i18n.js?v=e19f7df8665d";
+import { ICON_ZAP } from "./icons.js?v=e19f7df8665d";
 
 export function createSyncProgress() {
   const card = document.createElement("div");

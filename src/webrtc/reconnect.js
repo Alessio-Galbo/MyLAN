@@ -1,15 +1,15 @@
 /**
  * Riconnessione autonoma P2P tramite token crittografico di ritorno su canale privato.
  */
-import { deriveKey } from "../crypto/kdf.js?v=aa3afb9e1dd9";
-import { deriveTopic } from "../signaling/topics.js?v=aa3afb9e1dd9";
-import { sealEnvelope, unsealEnvelope } from "../crypto/envelope.js?v=aa3afb9e1dd9";
-import { postEnvelope, pollEnvelope } from "../signaling/client.js?v=aa3afb9e1dd9";
-import { createPeer, createFullOffer, applyAnswer } from "./peer.js?v=aa3afb9e1dd9";
-import { rememberHostIce, hostIceFor } from "./ice-config.js?v=aa3afb9e1dd9";
-import { waitForChannelsOpen, setActiveChannels } from "./channel.js?v=aa3afb9e1dd9";
-import { getOrCreateDeviceId } from "./device-id.js?v=aa3afb9e1dd9";
-import { getDeviceMeta } from "./device-meta.js?v=aa3afb9e1dd9";
+import { deriveKey } from "../crypto/kdf.js?v=e19f7df8665d";
+import { deriveTopic } from "../signaling/topics.js?v=e19f7df8665d";
+import { sealEnvelope, unsealEnvelope } from "../crypto/envelope.js?v=e19f7df8665d";
+import { postEnvelope, pollEnvelope } from "../signaling/client.js?v=e19f7df8665d";
+import { createPeer, createFullOffer, applyAnswer } from "./peer.js?v=e19f7df8665d";
+import { rememberHostIce, hostIceFor } from "./ice-config.js?v=e19f7df8665d";
+import { waitForChannelsOpen, setActiveChannels } from "./channel.js?v=e19f7df8665d";
+import { getOrCreateDeviceId } from "./device-id.js?v=e19f7df8665d";
+import { getDeviceMeta } from "./device-meta.js?v=e19f7df8665d";
 
 const inFlight = new Map();
 

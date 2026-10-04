@@ -1,10 +1,10 @@
 /**
  * Modulo di scoperta ed estrazione dei metadati dell'applicazione remota (Manifest/HTML).
  */
-import { t } from "../core/i18n.js?v=aa3afb9e1dd9";
-import { sendChannelRequest } from "./channel-fetch.js?v=aa3afb9e1dd9";
-import { parseRuntimeCache } from "./runtime-rules.js?v=aa3afb9e1dd9";
-import { parseDeclaredIcons } from "./app-icons.js?v=aa3afb9e1dd9";
+import { t } from "../core/i18n.js?v=e19f7df8665d";
+import { sendChannelRequest } from "./channel-fetch.js?v=e19f7df8665d";
+import { parseRuntimeCache } from "./runtime-rules.js?v=e19f7df8665d";
+import { parseDeclaredIcons } from "./app-icons.js?v=e19f7df8665d";
 
 async function fetchJsonSafely(channel, path) {
   try {

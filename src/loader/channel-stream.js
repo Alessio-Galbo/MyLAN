@@ -1,11 +1,13 @@
 /**
  * Streamer di richieste e risposte a pezzi su WebRTC DataChannel per Service Worker.
  * La pagina iniziale ("/") viene raccolta come byte e decodificata UTF-8 una sola volta alla fine,
- * sia con chunk JSON base64 sia con frame binari.
+ * sia con chunk JSON base64 sia con frame binari. Un host muto oltre opts.timeoutMs fa fallire la richiesta con 504
+ * (channel-timeout.js), invece di lasciarla appesa.
  */
-import { getOrCreateDeviceId } from "../webrtc/device-id.js?v=aa3afb9e1dd9";
-import { unpackBinaryChunk } from "./channel-binary.js?v=aa3afb9e1dd9";
-import { sendRequestWithBody } from "./channel-body.js?v=aa3afb9e1dd9";
+import { getOrCreateDeviceId } from "../webrtc/device-id.js?v=e19f7df8665d";
+import { unpackBinaryChunk } from "./channel-binary.js?v=e19f7df8665d";
+import { sendRequestWithBody } from "./channel-body.js?v=e19f7df8665d";
+import { requestIdleTimer, IDLE_TIMEOUT_MS } from "./channel-timeout.js?v=e19f7df8665d";
 
 let reqCounter = 0;
 
@@ -25,7 +27,9 @@ export function sendStreamingChannelRequest(channel, path, opts = {}, onStart, o
     const isRoot = path === "/" || path === "/index.html";
     const rootParts = [];
 
+    let idle = null;
     const finish = () => {
+      idle?.stop();
       channel.removeEventListener("message", handler);
       channel.removeEventListener("close", onClose);
       opts.signal?.removeEventListener("abort", onAbort);
@@ -45,13 +49,15 @@ export function sendStreamingChannelRequest(channel, path, opts = {}, onStart, o
       resolve();
     };
 
-    if (opts.signal?.aborted) return onAbort();
+    if (opts.signal?.aborted) return reject(new DOMException("Aborted", "AbortError"));
     opts.signal?.addEventListener("abort", onAbort);
+    idle = requestIdleTimer(channel, reqId, (err) => { finish(); reject(err); }, opts.timeoutMs || IDLE_TIMEOUT_MS);
 
     const handler = (evt) => {
       if (evt.data instanceof ArrayBuffer) {
         const bin = unpackBinaryChunk(evt.data);
         if (!bin || bin.id !== reqId) return;
+        idle.touch();
         if (isRoot) rootParts.push(bin.payload);
         else onChunk?.({ binary: bin.payload, buffer: bin.buffer, more: bin.more });
         if (!bin.more) complete();
@@ -60,6 +66,7 @@ export function sendStreamingChannelRequest(channel, path, opts = {}, onStart, o
       try {
         const msg = JSON.parse(evt.data);
         if (msg.id !== reqId) return;
+        idle.touch();
         if (msg.type === "start") {
           onStart?.(msg);
         } else if (msg.type === "chunk") {

@@ -1,9 +1,9 @@
 /**
  * Patch e persistenza dell'HTML root per la sandbox di sessione MyLAN.
  */
-import { buildSandboxBridgeScript } from "./sandbox-bridge.js?v=aa3afb9e1dd9";
-import { sessionBaseUrl, storagePrefix } from "./session-key.js?v=aa3afb9e1dd9";
-import { t } from "../core/i18n.js?v=aa3afb9e1dd9";
+import { buildSandboxBridgeScript } from "./sandbox-bridge.js?v=e19f7df8665d";
+import { sessionBaseUrl, storagePrefix } from "./session-key.js?v=e19f7df8665d";
+import { t } from "../core/i18n.js?v=e19f7df8665d";
 
 // Una copia della pagina iniziale per app (chiave di sessione), mai condivisa fra app diverse.
 export const SHELL_KEY_PREFIX = "mylan_shell_html:";

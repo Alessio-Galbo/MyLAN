@@ -1,5 +1,5 @@
 {
-  "version": "aa3afb9e1dd9",
+  "version": "e19f7df8665d",
   "sw": "be8c1f414024",
   "files": [
     "src/app.js",
@@ -8,6 +8,7 @@
     "src/core/launcher.js",
     "src/core/theme.js",
     "src/crypto/envelope.js",
+    "src/crypto/invite-v2.js",
     "src/crypto/kdf.js",
     "src/loader/app-downloader.js",
     "src/loader/app-icons-update.js",
@@ -19,6 +20,7 @@
     "src/loader/channel-fetch.js",
     "src/loader/channel-probe.js",
     "src/loader/channel-stream.js",
+    "src/loader/channel-timeout.js",
     "src/loader/frame-storage-shim.js",
     "src/loader/html-patcher.js",
     "src/loader/runtime-rules.js",

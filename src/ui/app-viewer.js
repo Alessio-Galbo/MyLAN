@@ -1,15 +1,15 @@
 /**
  * Visualizzatore a schermo intero per l'applicazione attiva collegata via P2P.
  */
-import { saveApp } from "../storage/app-registry.js?v=aa3afb9e1dd9";
-import { initBackgroundReconnect, prepareAppSession } from "./viewer-loader.js?v=aa3afb9e1dd9";
-import { answerUpdateRequest } from "./viewer-updater.js?v=aa3afb9e1dd9";
-import { openFrame, healOnBootError } from "./viewer-heal.js?v=aa3afb9e1dd9";
-import { getAppSlug, setFavicon, restoreFavicon, adoptFrameIcon } from "./viewer-meta.js?v=aa3afb9e1dd9";
-import { applyAppManifest, restoreDefaultManifest } from "./pwa-manifest.js?v=aa3afb9e1dd9";
-import { watchViewer } from "./viewer-watchdog.js?v=aa3afb9e1dd9";
-import { sessionKeyOf } from "../loader/session-key.js?v=aa3afb9e1dd9";
-import { dropRuntimeEntries } from "../loader/runtime-rules.js?v=aa3afb9e1dd9";
+import { saveApp } from "../storage/app-registry.js?v=e19f7df8665d";
+import { initBackgroundReconnect, prepareAppSession } from "./viewer-loader.js?v=e19f7df8665d";
+import { answerUpdateRequest } from "./viewer-updater.js?v=e19f7df8665d";
+import { openFrame, healOnBootError } from "./viewer-heal.js?v=e19f7df8665d";
+import { getAppSlug, setFavicon, restoreFavicon, adoptFrameIcon } from "./viewer-meta.js?v=e19f7df8665d";
+import { applyAppManifest, restoreDefaultManifest } from "./pwa-manifest.js?v=e19f7df8665d";
+import { watchViewer } from "./viewer-watchdog.js?v=e19f7df8665d";
+import { sessionKeyOf } from "../loader/session-key.js?v=e19f7df8665d";
+import { dropRuntimeEntries } from "../loader/runtime-rules.js?v=e19f7df8665d";
 
 export { getAppSlug };
 

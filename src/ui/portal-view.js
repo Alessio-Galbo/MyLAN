@@ -1,10 +1,10 @@
 /**
  * Assemblatore della vista principale del portale MyLAN con aggiornamento reattivo.
  */
-import { t, onLangChange } from "../core/i18n.js?v=aa3afb9e1dd9";
-import { createCodeInput, extractCodeFromUrl } from "./code-input.js?v=aa3afb9e1dd9";
-import { createStatusCard } from "./status-card.js?v=aa3afb9e1dd9";
-import { createFeaturePills } from "./portal-features.js?v=aa3afb9e1dd9";
+import { t, onLangChange } from "../core/i18n.js?v=e19f7df8665d";
+import { createCodeInput, extractCodeFromUrl, inviteProtocolFromUrl } from "./code-input.js?v=e19f7df8665d";
+import { createStatusCard } from "./status-card.js?v=e19f7df8665d";
+import { createFeaturePills } from "./portal-features.js?v=e19f7df8665d";
 
 export function renderPortal(container, onConnect) {
   const card = document.createElement("div");
@@ -34,6 +34,7 @@ export function renderPortal(container, onConnect) {
   label.textContent = t("portal.code_label");
 
   const initialCode = extractCodeFromUrl();
+  const linkProtocol = inviteProtocolFromUrl(); // letto ora: l'URL si pulisce alla connessione
   const input = createCodeInput(initialCode);
   fieldWrap.append(label, input);
 
@@ -56,10 +57,11 @@ export function renderPortal(container, onConnect) {
     }
     btn.disabled = true;
     input.disabled = true;
+    const sameAsLink = raw === initialCode.replace(/[^A-Za-z0-9]/g, "");
     onConnect(raw, statusCard, () => {
       btn.disabled = false;
       input.disabled = false;
-    });
+    }, sameAsLink ? linkProtocol : 2);
   });
 
   const footer = document.createElement("footer");

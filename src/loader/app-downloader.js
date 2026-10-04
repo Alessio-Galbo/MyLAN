@@ -1,17 +1,17 @@
 /**
  * Downloader P2P degli asset dell'applicazione e archiviazione in Cache API.
  */
-import { t } from "../core/i18n.js?v=aa3afb9e1dd9";
-import { sendChannelRequest } from "./channel-fetch.js?v=aa3afb9e1dd9";
-import { fetchAppMetadata } from "./app-metadata.js?v=aa3afb9e1dd9";
-import { setMediaPaths } from "./sw-channel-selector.js?v=aa3afb9e1dd9";
-import { setChunkedUploads } from "./channel-body.js?v=aa3afb9e1dd9";
-import { buildPatchedHtmlString, saveShellHtml } from "./html-patcher.js?v=aa3afb9e1dd9";
-import { sessionBaseUrl, sessionCacheName } from "./session-key.js?v=aa3afb9e1dd9";
-import { refreshCachedFiles, hostVersion, storeVersion } from "./app-updater.js?v=aa3afb9e1dd9";
-import { saveRuntimeRules } from "./runtime-rules.js?v=aa3afb9e1dd9";
-import { cacheDeclaredIcons } from "./app-icons.js?v=aa3afb9e1dd9";
-import { getAppSlug } from "../ui/viewer-meta.js?v=aa3afb9e1dd9";
+import { t } from "../core/i18n.js?v=e19f7df8665d";
+import { sendChannelRequest } from "./channel-fetch.js?v=e19f7df8665d";
+import { fetchAppMetadata } from "./app-metadata.js?v=e19f7df8665d";
+import { setMediaPaths } from "./sw-channel-selector.js?v=e19f7df8665d";
+import { setChunkedUploads } from "./channel-body.js?v=e19f7df8665d";
+import { buildPatchedHtmlString, saveShellHtml } from "./html-patcher.js?v=e19f7df8665d";
+import { sessionBaseUrl, sessionCacheName } from "./session-key.js?v=e19f7df8665d";
+import { refreshCachedFiles, hostVersion, storeVersion } from "./app-updater.js?v=e19f7df8665d";
+import { saveRuntimeRules } from "./runtime-rules.js?v=e19f7df8665d";
+import { cacheDeclaredIcons } from "./app-icons.js?v=e19f7df8665d";
+import { getAppSlug } from "../ui/viewer-meta.js?v=e19f7df8665d";
 
 function extractAssets(html) {
   const assets = new Set();
