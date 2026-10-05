@@ -2,8 +2,8 @@
  * L'app ha chiesto il WebSocket sul DataChannel ("websocket": true in /.well-known/mylan.json)? Le app salvate prima
  * di MyLAN 2026-10-05 non hanno il dato: si legge il manifest una volta sul canale e si salva con l'app.
  */
-import { sendChannelRequest } from "./channel-fetch.js?v=47145387c383";
-import { saveApp } from "../storage/app-registry.js?v=47145387c383";
+import { sendChannelRequest } from "./channel-fetch.js?v=1669042733e9";
+import { saveApp } from "../storage/app-registry.js?v=1669042733e9";
 
 /** true / false; null se non si sa ancora (dato mancante e host non raggiungibile ora). */
 export async function websocketAllowed(appData, channel) {

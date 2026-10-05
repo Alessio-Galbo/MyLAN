@@ -2,9 +2,13 @@
 from pathlib import Path
 from PIL import Image, ImageDraw
 
+SUPER = 4  # disegno a 4x e riduzione: bordi antialiasati (Pillow non li smussa da solo)
+
+
 def render_mylan_icon(size: int) -> Image.Image:
+    final, size = size, size * SUPER
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
+    draw = ImageDraw.Draw(img, "RGBA")  # "RGBA": le linee semitrasparenti si fondono, non bucano lo sfondo
     # Background con angoli arrotondati
     corner = int(size * 0.22)
     draw.rounded_rectangle([0, 0, size, size], radius=corner, fill=(11, 15, 25, 255))
@@ -29,7 +33,7 @@ def render_mylan_icon(size: int) -> Image.Image:
 
     r_core = max(2, int(size * 0.045))
     draw.ellipse([p_center[0] - r_core, p_center[1] - r_core, p_center[0] + r_core, p_center[1] + r_core], fill=(255, 255, 255, 255))
-    return img
+    return img.resize((final, final), Image.LANCZOS)
 
 def render_maskable_icon(size: int) -> Image.Image:
     """Icona "maskable": sfondo pieno fino ai bordi, disegno nella zona sicura (80% centrale) che Android non taglia."""

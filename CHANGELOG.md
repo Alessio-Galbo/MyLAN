@@ -14,6 +14,17 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
   Saved apps read the flag once the first time they open a WebSocket.
 - `Tools/test_ws_tunnel.mjs` (+ `ws_tunnel_fixture.mjs`): headless test of the tunnel against a fake host.
 
+### Fixed
+- Installed app icon blurry for good after one slow connection: when the icons an app declares could not be downloaded
+  over the channel (6 s timeout), an empty list was saved and never asked again, so the installed PWA kept the Hub
+  icon (often 192 px) upscaled to 512 on a canvas. Now the list is saved only when the download succeeds or the app
+  declares no icons, and the next connection retries (`src/loader/app-icons-update.js`, `app-downloader.js`,
+  `src/core/launcher.js`).
+- Icons rasterised by MyLAN (`src/ui/pwa-icon.js`) are scaled with `imageSmoothingQuality = "high"` (no jagged edges
+  when a large icon is reduced to 192 px).
+- MyLAN's own PNG icons (`src/icons/`, `Tools/generate_icons.py`) are drawn at 4x and reduced (anti-aliased edges,
+  before jagged) and their semi-transparent lines are blended (before they punched see-through holes in the icon).
+
 ## [fbcd370] - 2026-10-05 - Invite protocol 2, channel request limits and body fixes
 
 ## [699a087] - 2026-10-04 - Start instantly from cache, covers while connecting, sharp PWA icons

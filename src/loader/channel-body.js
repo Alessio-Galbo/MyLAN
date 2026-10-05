@@ -5,7 +5,7 @@
  * "body_b64": doppio base64, e oltre ~24 KB di corpo il messaggio superava il limite e non partiva.
  * Oltre: frame binari 0x42 dopo il JSON, solo se l'app dichiara "chunked_uploads": true; altrimenti errore 413.
  */
-import { packBinaryChunk } from "./channel-binary.js?v=47145387c383";
+import { packBinaryChunk } from "./channel-binary.js?v=1669042733e9";
 
 export const FRAME_MAX = 64 * 1024;
 const FRAME_PAYLOAD = 60 * 1024;

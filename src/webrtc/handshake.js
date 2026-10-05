@@ -1,17 +1,17 @@
 /**
  * Esecuzione dell'handshake WebRTC P2P con busta cifrata end-to-end.
  */
-import { t } from "../core/i18n.js?v=47145387c383";
-import { inviteKeys } from "../crypto/invite-v2.js?v=47145387c383";
-import { sealEnvelope, unsealEnvelope } from "../crypto/envelope.js?v=47145387c383";
-import { postEnvelope, pollEnvelope } from "../signaling/client.js?v=47145387c383";
-import { createPeer, createFullOffer, applyAnswer } from "./peer.js?v=47145387c383";
-import { rememberHostIce, hostIceFor } from "./ice-config.js?v=47145387c383";
-import { waitForChannelsOpen, setActiveChannels, setWantedOwner } from "./channel.js?v=47145387c383";
-import { sessionKeyOf } from "../loader/session-key.js?v=47145387c383";
-import { getOrCreateDeviceId } from "./device-id.js?v=47145387c383";
-import { getDeviceMeta } from "./device-meta.js?v=47145387c383";
-import { saveApp } from "../storage/app-registry.js?v=47145387c383";
+import { t } from "../core/i18n.js?v=1669042733e9";
+import { inviteKeys } from "../crypto/invite-v2.js?v=1669042733e9";
+import { sealEnvelope, unsealEnvelope } from "../crypto/envelope.js?v=1669042733e9";
+import { postEnvelope, pollEnvelope } from "../signaling/client.js?v=1669042733e9";
+import { createPeer, createFullOffer, applyAnswer } from "./peer.js?v=1669042733e9";
+import { rememberHostIce, hostIceFor } from "./ice-config.js?v=1669042733e9";
+import { waitForChannelsOpen, setActiveChannels, setWantedOwner } from "./channel.js?v=1669042733e9";
+import { sessionKeyOf } from "../loader/session-key.js?v=1669042733e9";
+import { getOrCreateDeviceId } from "./device-id.js?v=1669042733e9";
+import { getDeviceMeta } from "./device-meta.js?v=1669042733e9";
+import { saveApp } from "../storage/app-registry.js?v=1669042733e9";
 
 /** protocol: 2 (codici digitati, link con "p=2") o 1 (link degli host meno recenti), src/crypto/invite-v2.js. */
 export async function executeHandshake(code, onStatus, protocol = 2) {

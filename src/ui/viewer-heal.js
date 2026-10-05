@@ -6,13 +6,13 @@
  *   app e per sessione: copia completa e coerente dall'host (tutti i file noti + pagina iniziale, sostituzione solo a
  *   scaricamento riuscito), poi ricarica dell'iframe. Host non raggiungibile: avviso chiaro nel visualizzatore.
  */
-import { t } from "../core/i18n.js?v=47145387c383";
-import { getActiveChannel, getApiChannel, getChannelOwner } from "../webrtc/channel.js?v=47145387c383";
-import { isReconnecting } from "../webrtc/reconnect.js?v=47145387c383";
-import { downloadAppBundle } from "../loader/app-downloader.js?v=47145387c383";
-import { sessionKeyOf, sessionBaseUrl } from "../loader/session-key.js?v=47145387c383";
-import { checkAppUpdate } from "./viewer-updater.js?v=47145387c383";
-import { saveApp } from "../storage/app-registry.js?v=47145387c383";
+import { t } from "../core/i18n.js?v=1669042733e9";
+import { getActiveChannel, getApiChannel, getChannelOwner } from "../webrtc/channel.js?v=1669042733e9";
+import { isReconnecting } from "../webrtc/reconnect.js?v=1669042733e9";
+import { downloadAppBundle } from "../loader/app-downloader.js?v=1669042733e9";
+import { sessionKeyOf, sessionBaseUrl } from "../loader/session-key.js?v=1669042733e9";
+import { checkAppUpdate } from "./viewer-updater.js?v=1669042733e9";
+import { saveApp } from "../storage/app-registry.js?v=1669042733e9";
 
 const healed = new Set();
 

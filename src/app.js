@@ -1,17 +1,17 @@
 /**
  * Orchestratore principale dell'applicazione MyLAN: hub, portale e visualizzatore.
  */
-import { initI18n } from "./core/i18n.js?v=47145387c383";
-import { initTheme } from "./core/theme.js?v=47145387c383";
-import { renderTopBar } from "./ui/top-bar.js?v=47145387c383";
-import { renderPortal } from "./ui/portal-view.js?v=47145387c383";
-import { renderAppHub } from "./ui/app-hub.js?v=47145387c383";
-import { renderAppViewer } from "./ui/app-viewer.js?v=47145387c383";
-import { extractCodeFromUrl } from "./ui/code-input.js?v=47145387c383";
-import { initServiceWorkerBridge } from "./loader/sw-bridge.js?v=47145387c383";
-import { getSavedApps, findAppByQuery } from "./storage/app-registry.js?v=47145387c383";
-import { connectAndSyncApp } from "./core/launcher.js?v=47145387c383";
-import { migrateLegacyStorage } from "./storage/app-cleanup.js?v=47145387c383";
+import { initI18n } from "./core/i18n.js?v=1669042733e9";
+import { initTheme } from "./core/theme.js?v=1669042733e9";
+import { renderTopBar } from "./ui/top-bar.js?v=1669042733e9";
+import { renderPortal } from "./ui/portal-view.js?v=1669042733e9";
+import { renderAppHub } from "./ui/app-hub.js?v=1669042733e9";
+import { renderAppViewer } from "./ui/app-viewer.js?v=1669042733e9";
+import { extractCodeFromUrl } from "./ui/code-input.js?v=1669042733e9";
+import { initServiceWorkerBridge } from "./loader/sw-bridge.js?v=1669042733e9";
+import { getSavedApps, findAppByQuery } from "./storage/app-registry.js?v=1669042733e9";
+import { connectAndSyncApp } from "./core/launcher.js?v=1669042733e9";
+import { migrateLegacyStorage } from "./storage/app-cleanup.js?v=1669042733e9";
 
 let contentContainer = null;
 let activeViewer = null;

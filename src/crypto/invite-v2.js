@@ -3,8 +3,8 @@
  * (200k iterazioni) e poi da HKDF: chiavi AES-GCM separate per offerta e risposta, topic che non rivelano il codice.
  * Protocollo 1 (host meno recenti, link senza "p=2"): HKDF diretto sul codice e topic SHA-256, una chiave sola.
  */
-import { deriveKey } from "./kdf.js?v=47145387c383";
-import { deriveTopic } from "../signaling/topics.js?v=47145387c383";
+import { deriveKey } from "./kdf.js?v=1669042733e9";
+import { deriveTopic } from "../signaling/topics.js?v=1669042733e9";
 
 const enc = new TextEncoder();
 export const V2_ITERATIONS = 200000;

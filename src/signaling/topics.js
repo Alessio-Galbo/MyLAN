@@ -1,7 +1,7 @@
 /**
  * Derivazione deterministica dei nomi dei topic effimeri per il relay di signaling.
  */
-import { normalizeToken } from "../crypto/kdf.js?v=47145387c383";
+import { normalizeToken } from "../crypto/kdf.js?v=1669042733e9";
 
 export async function deriveTopic(token, prefix = "h") {
   const enc = new TextEncoder();

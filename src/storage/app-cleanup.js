@@ -1,13 +1,13 @@
 /**
  * Pulizia dei dati locali di un'app rimossa dall'Hub e migrazione una tantum dal vecchio spazio unico.
  */
-import { sessionKeyOf, sessionCacheName, storagePrefix } from "../loader/session-key.js?v=47145387c383";
-import { SHELL_KEY_PREFIX } from "../loader/html-patcher.js?v=47145387c383";
-import { MANIFEST_CACHE } from "../ui/pwa-icon.js?v=47145387c383";
-import { getAppSlug } from "../ui/viewer-meta.js?v=47145387c383";
-import { rememberHostIce } from "../webrtc/ice-config.js?v=47145387c383";
-import { forgetVersion, STAGING_PREFIX } from "../loader/app-updater.js?v=47145387c383";
-import { RUNTIME_PREFIX } from "../loader/runtime-rules.js?v=47145387c383";
+import { sessionKeyOf, sessionCacheName, storagePrefix } from "../loader/session-key.js?v=1669042733e9";
+import { SHELL_KEY_PREFIX } from "../loader/html-patcher.js?v=1669042733e9";
+import { MANIFEST_CACHE } from "../ui/pwa-icon.js?v=1669042733e9";
+import { getAppSlug } from "../ui/viewer-meta.js?v=1669042733e9";
+import { rememberHostIce } from "../webrtc/ice-config.js?v=1669042733e9";
+import { forgetVersion, STAGING_PREFIX } from "../loader/app-updater.js?v=1669042733e9";
+import { RUNTIME_PREFIX } from "../loader/runtime-rules.js?v=1669042733e9";
 
 const MIGRATED_KEY = "mylan_storage_ns_v1";
 

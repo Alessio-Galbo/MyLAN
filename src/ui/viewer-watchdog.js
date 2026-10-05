@@ -6,11 +6,11 @@
  * attesa crescente (1-30 s) finche' la pagina e' visibile e in rete; avviso "Riconnessione..." sopra l'app mentre avviene. A canale di nuovo
  * aperto l'app riceve "mylan:peer-connected" (viewer-loader.js).
  */
-import { t } from "../core/i18n.js?v=47145387c383";
-import { getApiChannel, getActiveChannel, getChannelOwner, dropActiveChannels, onChannelsChanged } from "../webrtc/channel.js?v=47145387c383";
-import { probeChannel } from "../loader/channel-probe.js?v=47145387c383";
-import { sessionKeyOf } from "../loader/session-key.js?v=47145387c383";
-import { initBackgroundReconnect } from "./viewer-loader.js?v=47145387c383";
+import { t } from "../core/i18n.js?v=1669042733e9";
+import { getApiChannel, getActiveChannel, getChannelOwner, dropActiveChannels, onChannelsChanged } from "../webrtc/channel.js?v=1669042733e9";
+import { probeChannel } from "../loader/channel-probe.js?v=1669042733e9";
+import { sessionKeyOf } from "../loader/session-key.js?v=1669042733e9";
+import { initBackgroundReconnect } from "./viewer-loader.js?v=1669042733e9";
 
 const FRESH_MS = 3000, BACKOFF_MS = [1000, 2000, 5000, 10000, 20000, 30000];
 

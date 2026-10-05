@@ -1,8 +1,8 @@
 /**
  * Componente card per ciascuna applicazione salvata nel registro MyLAN.
  */
-import { t } from "../core/i18n.js?v=47145387c383";
-import { ICON_GLOBE, ICON_CLOSE } from "./icons.js?v=47145387c383";
+import { t } from "../core/i18n.js?v=1669042733e9";
+import { ICON_GLOBE, ICON_CLOSE } from "./icons.js?v=1669042733e9";
 
 export function createAppCard(app, onLaunch, onRemove) {
   const card = document.createElement("div");

@@ -1,17 +1,17 @@
 /**
  * Downloader P2P degli asset dell'applicazione e archiviazione in Cache API.
  */
-import { t } from "../core/i18n.js?v=47145387c383";
-import { sendChannelRequest } from "./channel-fetch.js?v=47145387c383";
-import { fetchAppMetadata } from "./app-metadata.js?v=47145387c383";
-import { setMediaPaths } from "./sw-channel-selector.js?v=47145387c383";
-import { setChunkedUploads } from "./channel-body.js?v=47145387c383";
-import { buildPatchedHtmlString, saveShellHtml } from "./html-patcher.js?v=47145387c383";
-import { sessionBaseUrl, sessionCacheName } from "./session-key.js?v=47145387c383";
-import { refreshCachedFiles, hostVersion, storeVersion } from "./app-updater.js?v=47145387c383";
-import { saveRuntimeRules } from "./runtime-rules.js?v=47145387c383";
-import { cacheDeclaredIcons } from "./app-icons.js?v=47145387c383";
-import { getAppSlug } from "../ui/viewer-meta.js?v=47145387c383";
+import { t } from "../core/i18n.js?v=1669042733e9";
+import { sendChannelRequest } from "./channel-fetch.js?v=1669042733e9";
+import { fetchAppMetadata } from "./app-metadata.js?v=1669042733e9";
+import { setMediaPaths } from "./sw-channel-selector.js?v=1669042733e9";
+import { setChunkedUploads } from "./channel-body.js?v=1669042733e9";
+import { buildPatchedHtmlString, saveShellHtml } from "./html-patcher.js?v=1669042733e9";
+import { sessionBaseUrl, sessionCacheName } from "./session-key.js?v=1669042733e9";
+import { refreshCachedFiles, hostVersion, storeVersion } from "./app-updater.js?v=1669042733e9";
+import { saveRuntimeRules } from "./runtime-rules.js?v=1669042733e9";
+import { cacheDeclaredIcons } from "./app-icons.js?v=1669042733e9";
+import { getAppSlug } from "../ui/viewer-meta.js?v=1669042733e9";
 
 function extractAssets(html) {
   const assets = new Set();
@@ -49,7 +49,8 @@ export async function downloadAppBundle(channel, appKey, onProgress, onMetadata,
   setMediaPaths(metadata.mediaPaths);
   setChunkedUploads(metadata.chunkedUploads);
   await saveRuntimeRules(appKey, metadata.runtimeCache);
-  metadata.icons = await cacheDeclaredIcons(channel, getAppSlug({ title: metadata.name }), metadata.declaredIcons);
+  const icons = await cacheDeclaredIcons(channel, getAppSlug({ title: metadata.name }), metadata.declaredIcons);
+  if (icons.length || !metadata.declaredIcons.length) metadata.icons = icons; // non scaricate: si riprova (app-icons-update.js)
   if (onMetadata) onMetadata(metadata);
 
   const assetPaths = extractAssets(htmlText).map((p) => (p.startsWith("/") ? p : "/" + p));

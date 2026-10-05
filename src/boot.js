@@ -7,7 +7,7 @@
  * - Altrimenti (primo avvio, Service Worker vecchio o assente, import fallito): version.json senza cache, al massimo
  *   3 s, e la versione che dice. I fogli di stile di un index.html vecchio passano alla stessa versione.
  */
-const MYLAN_VERSION = "47145387c383";
+const MYLAN_VERSION = "1669042733e9";
 
 async function deployedVersion(timeoutMs) {
   const ctrl = new AbortController();

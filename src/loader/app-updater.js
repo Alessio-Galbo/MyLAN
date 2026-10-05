@@ -4,8 +4,8 @@
  * confronta un'impronta della pagina iniziale. Se cambia, tutti i file gia' in cache vengono riscaricati in parallelo in
  * una cache di appoggio e copiati nella cache dell'app solo a scaricamento riuscito: mai una cache vuota a meta'.
  */
-import { sendChannelRequest } from "./channel-fetch.js?v=47145387c383";
-import { sessionBaseUrl, sessionCacheName } from "./session-key.js?v=47145387c383";
+import { sendChannelRequest } from "./channel-fetch.js?v=1669042733e9";
+import { sessionBaseUrl, sessionCacheName } from "./session-key.js?v=1669042733e9";
 
 const VERSION_PREFIX = "mylan-app-version:";
 export const STAGING_PREFIX = "mylan-staging:";

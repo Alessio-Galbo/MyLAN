@@ -1,8 +1,8 @@
 /**
  * Componente per i badge e indicatori delle funzionalità del portale.
  */
-import { t } from "../core/i18n.js?v=47145387c383";
-import { ICON_LOCK, ICON_ZAP } from "./icons.js?v=47145387c383";
+import { t } from "../core/i18n.js?v=1669042733e9";
+import { ICON_LOCK, ICON_ZAP } from "./icons.js?v=1669042733e9";
 
 export function createFeaturePills() {
   const el = document.createElement("div");

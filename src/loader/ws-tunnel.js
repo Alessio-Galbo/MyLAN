@@ -5,9 +5,9 @@
  * ws-accept {id, protocol}. Messaggi lunghi in piu' ws-msg (more = true fino all'ultimo). Canale chiuso o sostituito
  * (riconnessione) = chiusura 1006 per l'app, che si ricollega da se'. Solo per le app con "websocket": true.
  */
-import { waitForChannel } from "./sw-channel-selector.js?v=47145387c383";
-import { sessionKeyOf } from "./session-key.js?v=47145387c383";
-import { websocketAllowed } from "./ws-optin.js?v=47145387c383";
+import { waitForChannel } from "./sw-channel-selector.js?v=1669042733e9";
+import { sessionKeyOf } from "./session-key.js?v=1669042733e9";
+import { websocketAllowed } from "./ws-optin.js?v=1669042733e9";
 
 const PART_CHARS = 8000; // testo per cornice: anche con molti caratteri da escapare resta sotto i 64 KB del canale
 let counter = 0;

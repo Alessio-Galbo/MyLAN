@@ -30,6 +30,7 @@ export function renderPng(img, size) {
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingQuality = "high"; // riduzione di un'icona grande senza scalettature
   const w = img.naturalWidth || size;
   const h = img.naturalHeight || size;
   const scale = Math.min(size / w, size / h);

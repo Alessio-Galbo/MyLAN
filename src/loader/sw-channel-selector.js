@@ -3,8 +3,8 @@
  * Il canale "mylan-media" serve le richieste pesanti: richieste con intestazione Range oppure
  * percorsi che l'app dichiara in "media_paths" del suo /.well-known/mylan.json. Tutto il resto va su "mylan-api".
  */
-import { getApiChannel, getMediaChannel, getActiveChannel, getChannelOwner } from "../webrtc/channel.js?v=47145387c383";
-import { isReconnecting } from "../webrtc/reconnect.js?v=47145387c383";
+import { getApiChannel, getMediaChannel, getActiveChannel, getChannelOwner } from "../webrtc/channel.js?v=1669042733e9";
+import { isReconnecting } from "../webrtc/reconnect.js?v=1669042733e9";
 
 let mediaPaths = [];
 

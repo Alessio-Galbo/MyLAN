@@ -2,10 +2,10 @@
  * Adattatore Fetch su WebRTC DataChannel per MyLAN. Ogni richiesta finisce sempre: risposta completa, errore
  * dell'host, canale chiuso, annullamento (opts.signal) o host muto oltre opts.timeoutMs (channel-timeout.js).
  */
-import { getOrCreateDeviceId } from "../webrtc/device-id.js?v=47145387c383";
-import { unpackBinaryChunk } from "./channel-binary.js?v=47145387c383";
-import { sendRequestWithBody } from "./channel-body.js?v=47145387c383";
-import { requestIdleTimer, IDLE_TIMEOUT_MS } from "./channel-timeout.js?v=47145387c383";
+import { getOrCreateDeviceId } from "../webrtc/device-id.js?v=1669042733e9";
+import { unpackBinaryChunk } from "./channel-binary.js?v=1669042733e9";
+import { sendRequestWithBody } from "./channel-body.js?v=1669042733e9";
+import { requestIdleTimer, IDLE_TIMEOUT_MS } from "./channel-timeout.js?v=1669042733e9";
 
 let reqCounter = 0;
 const NULL_BODY = [101, 204, 205, 304];

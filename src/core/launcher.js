@@ -1,13 +1,13 @@
 /**
  * Logica di connessione, sincronizzazione P2P e lancio dell'applicazione.
  */
-import { t } from "./i18n.js?v=47145387c383";
-import { executeHandshake } from "../webrtc/handshake.js?v=47145387c383";
-import { downloadAppBundle } from "../loader/app-downloader.js?v=47145387c383";
-import { saveApp } from "../storage/app-registry.js?v=47145387c383";
-import { createSyncProgress } from "../ui/sync-progress.js?v=47145387c383";
-import { clearUrlParams } from "../ui/code-input.js?v=47145387c383";
-import { sessionKeyOf } from "../loader/session-key.js?v=47145387c383";
+import { t } from "./i18n.js?v=1669042733e9";
+import { executeHandshake } from "../webrtc/handshake.js?v=1669042733e9";
+import { downloadAppBundle } from "../loader/app-downloader.js?v=1669042733e9";
+import { saveApp } from "../storage/app-registry.js?v=1669042733e9";
+import { createSyncProgress } from "../ui/sync-progress.js?v=1669042733e9";
+import { clearUrlParams } from "../ui/code-input.js?v=1669042733e9";
+import { sessionKeyOf } from "../loader/session-key.js?v=1669042733e9";
 
 export async function connectAndSyncApp(code, statusCard, container, onReady, onError, protocol = 2) {
   clearUrlParams();
@@ -34,7 +34,7 @@ export async function connectAndSyncApp(code, statusCard, container, onReady, on
       icon: res?.metadata?.icon || "",
       themeColor: res?.metadata?.themeColor || "",
       backgroundColor: res?.metadata?.backgroundColor || "",
-      icons: res?.metadata?.icons || [],
+      icons: res?.metadata?.icons, // assenti se lo scaricamento non è riuscito: riprovate alla connessione dopo
       mediaPaths: res?.metadata?.mediaPaths || [],
       chunkedUploads: Boolean(res?.metadata?.chunkedUploads),
       websocket: Boolean(res?.metadata?.websocket),

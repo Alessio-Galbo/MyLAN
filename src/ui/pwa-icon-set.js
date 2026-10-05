@@ -3,8 +3,8 @@
  * src/loader/app-icons.js): tutte, con misure e scopo. Se nessuna icona "any" arriva a 512 px, ultima risorsa: la piu'
  * grande viene ingrandita a 512 su canvas (sfocata: e' solo un ripiego, l'app dovrebbe dichiarare la sua 512).
  */
-import { MANIFEST_CACHE, loadImage, renderPng } from "./pwa-icon.js?v=47145387c383";
-import { iconSide } from "../loader/app-icons.js?v=47145387c383";
+import { MANIFEST_CACHE, loadImage, renderPng } from "./pwa-icon.js?v=1669042733e9";
+import { iconSide } from "../loader/app-icons.js?v=1669042733e9";
 
 const isAny = (i) => /any/.test(i.purpose || "any");
 
