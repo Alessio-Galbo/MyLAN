@@ -4,8 +4,8 @@
  * Android disegna la schermata di avvio con l'icona piu' grande: per questo servono almeno 512 "any" e 512
  * "maskable" (docs/APP_SPEC.md §2). Il Service Worker le serve da li' (src/loader/sw-manifest.js).
  */
-import { sendChannelRequest } from "./channel-fetch.js?v=e19f7df8665d";
-import { MANIFEST_CACHE, hashText } from "../ui/pwa-icon.js?v=e19f7df8665d";
+import { sendChannelRequest } from "./channel-fetch.js?v=47145387c383";
+import { MANIFEST_CACHE, hashText } from "../ui/pwa-icon.js?v=47145387c383";
 
 const MAX_ICONS = 8;
 const MAX_BYTES = 1024 * 1024;

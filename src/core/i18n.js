@@ -7,7 +7,7 @@ const listeners = new Set();
 
 async function loadDict(lang) {
   try {
-    const res = await fetch(`./src/locales/${lang}.json?v=e19f7df8665d`);
+    const res = await fetch(`./src/locales/${lang}.json?v=47145387c383`);
     currentDict = await res.json();
   } catch {
     currentDict = {};

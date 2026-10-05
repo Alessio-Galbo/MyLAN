@@ -2,9 +2,9 @@
  * App salvate prima delle icone dichiarate (src/loader/app-icons.js): alla prima connessione MyLAN legge una volta il
  * manifest dell'app, salva le sue icone e i suoi colori, e il manifest della PWA installata si aggiorna.
  */
-import { sendChannelRequest } from "./channel-fetch.js?v=e19f7df8665d";
-import { parseDeclaredIcons, cacheDeclaredIcons } from "./app-icons.js?v=e19f7df8665d";
-import { getAppSlug } from "../ui/viewer-meta.js?v=e19f7df8665d";
+import { sendChannelRequest } from "./channel-fetch.js?v=47145387c383";
+import { parseDeclaredIcons, cacheDeclaredIcons } from "./app-icons.js?v=47145387c383";
+import { getAppSlug } from "../ui/viewer-meta.js?v=47145387c383";
 
 const color = (c) => (typeof c === "string" ? c.slice(0, 32) : "");
 

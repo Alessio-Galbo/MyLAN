@@ -4,10 +4,10 @@
  * sia con chunk JSON base64 sia con frame binari. Un host muto oltre opts.timeoutMs fa fallire la richiesta con 504
  * (channel-timeout.js), invece di lasciarla appesa.
  */
-import { getOrCreateDeviceId } from "../webrtc/device-id.js?v=e19f7df8665d";
-import { unpackBinaryChunk } from "./channel-binary.js?v=e19f7df8665d";
-import { sendRequestWithBody } from "./channel-body.js?v=e19f7df8665d";
-import { requestIdleTimer, IDLE_TIMEOUT_MS } from "./channel-timeout.js?v=e19f7df8665d";
+import { getOrCreateDeviceId } from "../webrtc/device-id.js?v=47145387c383";
+import { unpackBinaryChunk } from "./channel-binary.js?v=47145387c383";
+import { sendRequestWithBody } from "./channel-body.js?v=47145387c383";
+import { requestIdleTimer, IDLE_TIMEOUT_MS } from "./channel-timeout.js?v=47145387c383";
 
 let reqCounter = 0;
 

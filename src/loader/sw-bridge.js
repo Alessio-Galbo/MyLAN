@@ -1,10 +1,10 @@
 /**
  * Bridge tra Service Worker e canale WebRTC DataChannel della finestra principale.
  */
-import { selectChannelForPath, waitForChannel } from "./sw-channel-selector.js?v=e19f7df8665d";
-import { sendStreamingChannelRequest } from "./channel-stream.js?v=e19f7df8665d";
-import { patchIndexHtml, getShellHtml, hasShellHtml } from "./html-patcher.js?v=e19f7df8665d";
-import { answerRelayProbe } from "./sw-relay-probe.js?v=e19f7df8665d";
+import { selectChannelForPath, waitForChannel } from "./sw-channel-selector.js?v=47145387c383";
+import { sendStreamingChannelRequest } from "./channel-stream.js?v=47145387c383";
+import { patchIndexHtml, getShellHtml, hasShellHtml } from "./html-patcher.js?v=47145387c383";
+import { answerRelayProbe } from "./sw-relay-probe.js?v=47145387c383";
 
 function respondWithHtml(port, html, isFallback = false) {
   const buffer = new TextEncoder().encode(html).buffer;

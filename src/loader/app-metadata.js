@@ -1,10 +1,10 @@
 /**
  * Modulo di scoperta ed estrazione dei metadati dell'applicazione remota (Manifest/HTML).
  */
-import { t } from "../core/i18n.js?v=e19f7df8665d";
-import { sendChannelRequest } from "./channel-fetch.js?v=e19f7df8665d";
-import { parseRuntimeCache } from "./runtime-rules.js?v=e19f7df8665d";
-import { parseDeclaredIcons } from "./app-icons.js?v=e19f7df8665d";
+import { t } from "../core/i18n.js?v=47145387c383";
+import { sendChannelRequest } from "./channel-fetch.js?v=47145387c383";
+import { parseRuntimeCache } from "./runtime-rules.js?v=47145387c383";
+import { parseDeclaredIcons } from "./app-icons.js?v=47145387c383";
 
 async function fetchJsonSafely(channel, path) {
   try {
@@ -74,6 +74,7 @@ export async function fetchAppMetadata(channel, htmlText = "") {
     ? manifest.media_paths.filter((p) => typeof p === "string" && p.startsWith("/")).slice(0, 20)
     : [];
   const chunkedUploads = manifest?.chunked_uploads === true;
+  const websocket = manifest?.websocket === true; // WebSocket sul DataChannel (src/loader/ws-tunnel.js)
   const uc = manifest?.update_check;  // {url, field}: dove l'host dice la versione dell'app (app-updater.js)
   const updateCheck = typeof uc?.url === "string" && uc.url.startsWith("/")
     ? { url: uc.url, field: typeof uc.field === "string" ? uc.field : "version" } : null;
@@ -81,5 +82,5 @@ export async function fetchAppMetadata(channel, htmlText = "") {
   const backgroundColor = typeof manifest?.background_color === "string" ? manifest.background_color.slice(0, 32) : "";
   const declaredIcons = parseDeclaredIcons(manifest?.icons); // PWA installata dell'app (src/loader/app-icons.js)
   return { name, description, themeColor, backgroundColor, icon, declaredIcons, mediaPaths, chunkedUploads, updateCheck,
-    runtimeCache };
+    runtimeCache, websocket };
 }

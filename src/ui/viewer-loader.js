@@ -2,13 +2,13 @@
  * Preparazione della sessione dell'app aperta e riconnessione in background senza bloccare la cache.
  * Il canale aperto vale solo per l'app che lo possiede: aprendo un'altra app si riconnette al suo host.
  */
-import { getActiveChannel, getChannelOwner, setWantedOwner } from "../webrtc/channel.js?v=e19f7df8665d";
-import { reconnectPeer } from "../webrtc/reconnect.js?v=e19f7df8665d";
-import { hasShellHtml } from "../loader/html-patcher.js?v=e19f7df8665d";
-import { sessionKeyOf, sessionBaseUrl } from "../loader/session-key.js?v=e19f7df8665d";
-import { setMediaPaths } from "../loader/sw-channel-selector.js?v=e19f7df8665d";
-import { setChunkedUploads } from "../loader/channel-body.js?v=e19f7df8665d";
-import { checkAppUpdate } from "./viewer-updater.js?v=e19f7df8665d";
+import { getActiveChannel, getChannelOwner, setWantedOwner } from "../webrtc/channel.js?v=47145387c383";
+import { reconnectPeer } from "../webrtc/reconnect.js?v=47145387c383";
+import { hasShellHtml } from "../loader/html-patcher.js?v=47145387c383";
+import { sessionKeyOf, sessionBaseUrl } from "../loader/session-key.js?v=47145387c383";
+import { setMediaPaths } from "../loader/sw-channel-selector.js?v=47145387c383";
+import { setChunkedUploads } from "../loader/channel-body.js?v=47145387c383";
+import { checkAppUpdate } from "./viewer-updater.js?v=47145387c383";
 
 const reconnecting = new Map(); // chiave app -> riconnessione in corso (Promise<boolean>)
 

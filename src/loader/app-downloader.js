@@ -1,17 +1,17 @@
 /**
  * Downloader P2P degli asset dell'applicazione e archiviazione in Cache API.
  */
-import { t } from "../core/i18n.js?v=e19f7df8665d";
-import { sendChannelRequest } from "./channel-fetch.js?v=e19f7df8665d";
-import { fetchAppMetadata } from "./app-metadata.js?v=e19f7df8665d";
-import { setMediaPaths } from "./sw-channel-selector.js?v=e19f7df8665d";
-import { setChunkedUploads } from "./channel-body.js?v=e19f7df8665d";
-import { buildPatchedHtmlString, saveShellHtml } from "./html-patcher.js?v=e19f7df8665d";
-import { sessionBaseUrl, sessionCacheName } from "./session-key.js?v=e19f7df8665d";
-import { refreshCachedFiles, hostVersion, storeVersion } from "./app-updater.js?v=e19f7df8665d";
-import { saveRuntimeRules } from "./runtime-rules.js?v=e19f7df8665d";
-import { cacheDeclaredIcons } from "./app-icons.js?v=e19f7df8665d";
-import { getAppSlug } from "../ui/viewer-meta.js?v=e19f7df8665d";
+import { t } from "../core/i18n.js?v=47145387c383";
+import { sendChannelRequest } from "./channel-fetch.js?v=47145387c383";
+import { fetchAppMetadata } from "./app-metadata.js?v=47145387c383";
+import { setMediaPaths } from "./sw-channel-selector.js?v=47145387c383";
+import { setChunkedUploads } from "./channel-body.js?v=47145387c383";
+import { buildPatchedHtmlString, saveShellHtml } from "./html-patcher.js?v=47145387c383";
+import { sessionBaseUrl, sessionCacheName } from "./session-key.js?v=47145387c383";
+import { refreshCachedFiles, hostVersion, storeVersion } from "./app-updater.js?v=47145387c383";
+import { saveRuntimeRules } from "./runtime-rules.js?v=47145387c383";
+import { cacheDeclaredIcons } from "./app-icons.js?v=47145387c383";
+import { getAppSlug } from "../ui/viewer-meta.js?v=47145387c383";
 
 function extractAssets(html) {
   const assets = new Set();

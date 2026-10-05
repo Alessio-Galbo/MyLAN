@@ -1,10 +1,10 @@
 /**
  * Barra degli strumenti superiore: logo, lingua, tema e supporto Ko-fi.
  */
-import { t, getLang, setLang, onLangChange } from "../core/i18n.js?v=e19f7df8665d";
-import { getTheme, toggleTheme, onThemeChange } from "../core/theme.js?v=e19f7df8665d";
-import { createKofiButton } from "./kofi-btn.js?v=e19f7df8665d";
-import { ICON_SUN, ICON_MOON } from "./icons.js?v=e19f7df8665d";
+import { t, getLang, setLang, onLangChange } from "../core/i18n.js?v=47145387c383";
+import { getTheme, toggleTheme, onThemeChange } from "../core/theme.js?v=47145387c383";
+import { createKofiButton } from "./kofi-btn.js?v=47145387c383";
+import { ICON_SUN, ICON_MOON } from "./icons.js?v=47145387c383";
 
 export function renderTopBar(container) {
   const bar = document.createElement("header");

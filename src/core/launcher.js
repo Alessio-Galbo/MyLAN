@@ -1,13 +1,13 @@
 /**
  * Logica di connessione, sincronizzazione P2P e lancio dell'applicazione.
  */
-import { t } from "./i18n.js?v=e19f7df8665d";
-import { executeHandshake } from "../webrtc/handshake.js?v=e19f7df8665d";
-import { downloadAppBundle } from "../loader/app-downloader.js?v=e19f7df8665d";
-import { saveApp } from "../storage/app-registry.js?v=e19f7df8665d";
-import { createSyncProgress } from "../ui/sync-progress.js?v=e19f7df8665d";
-import { clearUrlParams } from "../ui/code-input.js?v=e19f7df8665d";
-import { sessionKeyOf } from "../loader/session-key.js?v=e19f7df8665d";
+import { t } from "./i18n.js?v=47145387c383";
+import { executeHandshake } from "../webrtc/handshake.js?v=47145387c383";
+import { downloadAppBundle } from "../loader/app-downloader.js?v=47145387c383";
+import { saveApp } from "../storage/app-registry.js?v=47145387c383";
+import { createSyncProgress } from "../ui/sync-progress.js?v=47145387c383";
+import { clearUrlParams } from "../ui/code-input.js?v=47145387c383";
+import { sessionKeyOf } from "../loader/session-key.js?v=47145387c383";
 
 export async function connectAndSyncApp(code, statusCard, container, onReady, onError, protocol = 2) {
   clearUrlParams();
@@ -37,6 +37,7 @@ export async function connectAndSyncApp(code, statusCard, container, onReady, on
       icons: res?.metadata?.icons || [],
       mediaPaths: res?.metadata?.mediaPaths || [],
       chunkedUploads: Boolean(res?.metadata?.chunkedUploads),
+      websocket: Boolean(res?.metadata?.websocket),
       updateCheck: res?.metadata?.updateCheck || null
     };
     saveApp(appData);

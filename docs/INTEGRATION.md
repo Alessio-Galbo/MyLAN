@@ -251,6 +251,11 @@ MyLAN ships only the browser side. Your host needs a small companion (any langua
    payload each); handle the request after the frame with `more = 0`. Without the flag MyLAN answers `413` locally
    and nothing is sent (APP_SPEC §4.1). Treat `x-device-id` as an identifier, not as proof of identity: authorize with
    the reconnect token / your own session.
+10. **WebSockets (optional)**: declare `"websocket": true` and handle the `ws-open` / `ws-msg` / `ws-close` messages
+   of APP_SPEC §4.4 on the same channel: run your WebSocket handler with the identity of the peer (as for HTTP),
+   answer `ws-accept` or `ws-close`, split long messages with `more`, apply backpressure (`bufferedAmount`) and close
+   every connection of a channel when it closes. Allow only your WebSocket paths and cap the connections and the
+   message size per channel.
 
 ---
 
@@ -388,7 +393,7 @@ publishes their own MyLAN on a domain they own.
 | Requests silent for 130 s | Failed with `504` and aborted on the host (APP_SPEC §4.1) | Answer within 120 s; long-polling must return before that |
 | Storage not namespaced everywhere | IndexedDB, your own cache names, cookies and Workers are shared by all apps on the origin | Use app-specific database and cache names |
 | Data from older versions | Versions with one shared space are migrated once at first start: non-MyLAN keys are **copied** into each saved app's namespace; the originals are kept (the origin may host other sites of the same account) | Nothing to do; old keys can be cleared by the user |
-| No WebSockets to the host | WebSockets to MyLAN's origin are stubbed | Use HTTP polling / long-polling over `/api/` |
+| WebSockets only on request | WebSockets to MyLAN's origin travel on the DataChannel only for apps that declare `"websocket": true` (APP_SPEC §4.4); otherwise they never open. A lost channel closes them with `1006` and messages sent meanwhile are lost | Declare the flag and reconnect on `close`, or use HTTP polling over `/api/` |
 | `/api/` responses are not kept offline unless declared | Images served from `/api/` break with the host off | Declare their prefixes in `runtime_cache` (§4) |
 | Non-`/api/` responses are cached | Dynamic content outside `/api/` can be stale | Keep dynamic endpoints under `/api/`, or send the request with a `Cache-Control: no-cache` header |
 | Root-absolute ES module imports | `import "/x.js"` is not rewritten | Use relative imports |

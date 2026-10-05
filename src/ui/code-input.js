@@ -1,8 +1,8 @@
 /**
  * Formattatore e validatore del campo di inserimento codice monouso.
  */
-import { t } from "../core/i18n.js?v=e19f7df8665d";
-import { protocolOfLink } from "../crypto/invite-v2.js?v=e19f7df8665d";
+import { t } from "../core/i18n.js?v=47145387c383";
+import { protocolOfLink } from "../crypto/invite-v2.js?v=47145387c383";
 
 export function formatCode(raw) {
   const clean = (raw || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();

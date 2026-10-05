@@ -1,5 +1,5 @@
 {
-  "version": "e19f7df8665d",
+  "version": "47145387c383",
   "sw": "be8c1f414024",
   "files": [
     "src/app.js",
@@ -22,6 +22,7 @@
     "src/loader/channel-stream.js",
     "src/loader/channel-timeout.js",
     "src/loader/frame-storage-shim.js",
+    "src/loader/frame-ws-shim.js",
     "src/loader/html-patcher.js",
     "src/loader/runtime-rules.js",
     "src/loader/sandbox-bridge.js",
@@ -29,6 +30,8 @@
     "src/loader/sw-bridge.js",
     "src/loader/sw-channel-selector.js",
     "src/loader/sw-relay-probe.js",
+    "src/loader/ws-optin.js",
+    "src/loader/ws-tunnel.js",
     "src/locales/en.json",
     "src/locales/it.json",
     "src/signaling/client.js",

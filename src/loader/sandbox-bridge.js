@@ -1,7 +1,8 @@
 /**
  * Generatore dello script bridge per l'ambiente sandbox iframe di MyLAN.
  */
-import { installStorageShim } from "./frame-storage-shim.js?v=e19f7df8665d";
+import { installStorageShim } from "./frame-storage-shim.js?v=47145387c383";
+import { installWebSocketShim } from "./frame-ws-shim.js?v=47145387c383";
 
 // Errori di avvio (primi 10 s): errore di script non gestito (anche SyntaxError di collegamento dei moduli), script
 // che non si carica, import dinamico fallito. Uno solo a MyLAN ("mylan:app-boot-error"): src/ui/viewer-heal.js.
@@ -24,6 +25,7 @@ export function buildSandboxBridgeScript(baseSessionUrl, storagePrefix) {
   return `<base href="${baseSessionUrl}"><script>
 ${BOOT_WATCH}
 (${installStorageShim.toString()})(${JSON.stringify(storagePrefix)});
+(${installWebSocketShim.toString()})(${JSON.stringify(baseSessionUrl)});
 (function(){
   const b = "${baseSessionUrl}";
   const fix = (u) => (typeof u === "string" && u.startsWith("/") && !u.startsWith("//")) ? b + u.slice(1) : u;
@@ -57,13 +59,6 @@ ${BOOT_WATCH}
     scope: b, active: null, installing: null, waiting: null, addEventListener(){}, removeEventListener(){},
     unregister: () => Promise.resolve(true)
   });
-  const OrigWS = window.WebSocket;
-  window.WebSocket = function(u, ...a) {
-    if (typeof u === "string" && (u.includes(location.host) || u.includes("github.io"))) {
-      return { addEventListener(){}, removeEventListener(){}, send(){}, close(){} };
-    }
-    return new OrigWS(u, ...a);
-  };
 })();
 </script>`;
 }

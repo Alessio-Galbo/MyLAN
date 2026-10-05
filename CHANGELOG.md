@@ -4,6 +4,16 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+### Added
+- WebSockets over the DataChannel for apps that declare `"websocket": true` in `/.well-known/mylan.json`
+  (APP_SPEC §4.4, INTEGRATION step 10): inside the iframe `new WebSocket(...)` to the app's origin is a MyLAN object
+  with the standard API (`src/loader/frame-ws-shim.js`), carried as `ws-open` / `ws-accept` / `ws-msg` / `ws-close`
+  messages on `mylan-api` (`src/loader/ws-tunnel.js`, `src/loader/ws-optin.js`); long messages are split with `more`
+  (at most 8000 text characters or 48000 base64 per frame); a lost channel closes every connection with `1006` and
+  the app reconnects as on a LAN. Apps without the flag are unaffected (their WebSockets never open, as before).
+  Saved apps read the flag once the first time they open a WebSocket.
+- `Tools/test_ws_tunnel.mjs` (+ `ws_tunnel_fixture.mjs`): headless test of the tunnel against a fake host.
+
 ## [fbcd370] - 2026-10-05 - Invite protocol 2, channel request limits and body fixes
 
 ## [699a087] - 2026-10-04 - Start instantly from cache, covers while connecting, sharp PWA icons

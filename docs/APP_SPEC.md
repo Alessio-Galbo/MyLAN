@@ -35,6 +35,7 @@ During pairing and initial synchronization, MyLAN queries the remote application
   "theme_color": "#6366f1",
   "media_paths": ["/files/", "/api/stream/"],
   "chunked_uploads": true,
+  "websocket": true,
   "update_check": { "url": "/api/version", "field": "shell" },
   "runtime_cache": [
     { "prefix": "/api/covers/", "strategy": "stale-while-revalidate", "keep_params": ["size", "v"], "version_param": "v" }
@@ -48,6 +49,11 @@ During pairing and initial synchronization, MyLAN queries the remote application
   ]
 }
 ```
+
+`websocket` (optional, default `false`): the app may open WebSockets to its own origin and the host carries them on
+the DataChannel (§4.4). Without it, a WebSocket to the app's origin never opens and fires no event (as in MyLAN
+before 2026-10-05), so apps that do not expect it are not affected. Apps saved before this field read it once from
+`/.well-known/mylan.json` the first time they open a WebSocket.
 
 ### Recommended icon set (installed app)
 Declare in `icons` at least **192 and 512 px, both `any` and `maskable`** (PNG, square), as above. When the app is
@@ -153,6 +159,25 @@ Responses can be streamed in chunks up to 64 KB using either:
      "more": false
    }
    ```
+
+### 4.4 WebSocket frames (only for apps with `"websocket": true`)
+Inside the iframe, `new WebSocket("ws(s)://<MyLAN host>/<path>")` (also under `/session/<key>/`, which is stripped)
+is a MyLAN object with the standard API (`readyState`, `send`, `close`, `binaryType`, `onopen`/`onmessage`/`onerror`/
+`onclose` and `addEventListener`, `WebSocket.OPEN`...; `WebSocket.mylanTunnel === true`); WebSockets to other hosts
+are the browser's own. MyLAN carries each connection as JSON messages on `mylan-api`, `type` and `id` first:
+
+| Direction | Message | Meaning |
+|---|---|---|
+| MyLAN -> host | `{"type":"ws-open","id":"w_...","path":"/ws?x=1","headers":{},"protocols":["p1"]}` | Open a WebSocket on `path` (query included) |
+| host -> MyLAN | `{"type":"ws-accept","id":...,"protocol":"p1"\|null}` | Accepted: the app gets `open` |
+| both | `{"type":"ws-msg","id":...,"text":"..."}` or `"bin":"<base64>"`, plus `"more": true\|false` | One message; a long one is split into several `ws-msg` with `more: true` until the last (`more: false`). MyLAN sends at most 8000 characters of text (48000 of base64) per frame, so every frame stays under 64 KB; do the same |
+| both | `{"type":"ws-close","id":...,"code":1000,"reason":""}` | Closed by that side; the host also uses it to refuse an open (e.g. `1008` path not allowed, `1013` too many connections) |
+
+When the channel closes (host lost, reconnection, the viewer is closed) every connection ends: the app gets `error`
+and `close` with code `1006` (or `1001` when the viewer closes), exactly like a lost network, and should reconnect
+with a new `WebSocket` as it would in a LAN; MyLAN waits for a reconnection in progress (up to 10 s) before failing
+a new one. Messages sent while disconnected are lost (no replay). The host decides who the client is from the peer
+of the channel (never from headers or messages), allows only the paths it wants and limits connections per channel.
 
 ---
 

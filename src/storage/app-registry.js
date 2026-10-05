@@ -30,6 +30,7 @@ export function saveApp(app) {
     mediaPaths: Array.isArray(app.mediaPaths) ? app.mediaPaths : (existing?.mediaPaths || []),
     updateCheck: app.updateCheck !== undefined ? app.updateCheck : (existing?.updateCheck || null),
     chunkedUploads: typeof app.chunkedUploads === "boolean" ? app.chunkedUploads : Boolean(existing?.chunkedUploads),
+    websocket: typeof app.websocket === "boolean" ? app.websocket : existing?.websocket, // assente: ws-optin.js lo legge
     lastUsed: Date.now(),
     autoLaunch: Boolean(app.autoLaunch)
   });

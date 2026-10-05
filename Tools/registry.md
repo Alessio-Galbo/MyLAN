@@ -32,3 +32,9 @@ Questo registro documenta gli script Python di supporto e manutenzione per il re
 ## 5. `test_invite_v2.mjs`
 - **Scopo:** Prova il protocollo d'invito (`src/crypto/invite-v2.js`, docs/INTEGRATION.md §5) in Node senza rete: vettore fissato del protocollo 2 (PBKDF2-SHA256 200000 + HKDF, deve coincidere con quello dell'host), busta della risposta che si apre solo con la chiave della risposta, topic che non contengono il codice, protocollo 1 ancora disponibile per i link senza `p` e scelta del protocollo dal link (`p=2` -> 2, link senza `p` -> 1, codice digitato -> 2).
 - **Esecuzione:** `node Tools/test_invite_v2.mjs`
+
+---
+
+## 6. `test_ws_tunnel.mjs` (+ `ws_tunnel_fixture.mjs`)
+- **Scopo:** Prova in Chrome headless il WebSocket delle app sul DataChannel (`src/loader/frame-ws-shim.js` nell'iframe, `src/loader/ws-tunnel.js` e `ws-optin.js` nel visualizzatore, docs/APP_SPEC.md §4.4) con un host finto al posto del canale: apertura sul percorso dell'app (anche sotto `/session/<chiave>/`) col sottoprotocollo, `send()` prima dell'apertura (InvalidStateError), testo e binario nei due sensi, messaggi lunghi a pezzi (`more`) nei due sensi, percorso rifiutato (1008), chiusura dall'app e dall'host, canale perso (error + 1006), nessun canale (1006 subito), nuova connessione a canale tornato, `stop()` del visualizzatore (1001), altri host al WebSocket del browser, app senza `"websocket": true` muta come prima.
+- **Esecuzione:** `node Tools/stamp.mjs && node Tools/test_ws_tunnel.mjs [--port=18621] [--cdp=9721]`

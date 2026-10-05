@@ -1,15 +1,16 @@
 /**
  * Visualizzatore a schermo intero per l'applicazione attiva collegata via P2P.
  */
-import { saveApp } from "../storage/app-registry.js?v=e19f7df8665d";
-import { initBackgroundReconnect, prepareAppSession } from "./viewer-loader.js?v=e19f7df8665d";
-import { answerUpdateRequest } from "./viewer-updater.js?v=e19f7df8665d";
-import { openFrame, healOnBootError } from "./viewer-heal.js?v=e19f7df8665d";
-import { getAppSlug, setFavicon, restoreFavicon, adoptFrameIcon } from "./viewer-meta.js?v=e19f7df8665d";
-import { applyAppManifest, restoreDefaultManifest } from "./pwa-manifest.js?v=e19f7df8665d";
-import { watchViewer } from "./viewer-watchdog.js?v=e19f7df8665d";
-import { sessionKeyOf } from "../loader/session-key.js?v=e19f7df8665d";
-import { dropRuntimeEntries } from "../loader/runtime-rules.js?v=e19f7df8665d";
+import { saveApp } from "../storage/app-registry.js?v=47145387c383";
+import { initBackgroundReconnect, prepareAppSession } from "./viewer-loader.js?v=47145387c383";
+import { answerUpdateRequest } from "./viewer-updater.js?v=47145387c383";
+import { openFrame, healOnBootError } from "./viewer-heal.js?v=47145387c383";
+import { getAppSlug, setFavicon, restoreFavicon, adoptFrameIcon } from "./viewer-meta.js?v=47145387c383";
+import { applyAppManifest, restoreDefaultManifest } from "./pwa-manifest.js?v=47145387c383";
+import { watchViewer } from "./viewer-watchdog.js?v=47145387c383";
+import { sessionKeyOf } from "../loader/session-key.js?v=47145387c383";
+import { dropRuntimeEntries } from "../loader/runtime-rules.js?v=47145387c383";
+import { startWsTunnel } from "../loader/ws-tunnel.js?v=47145387c383";
 
 export { getAppSlug };
 
@@ -41,6 +42,7 @@ export function renderAppViewer(container, appData, onExit) {
   openFrame(iframe, appData, sessionUrl); // con il canale gia' aperto: prima l'eventuale aggiornamento, poi l'app
 
   const watchdog = watchViewer(iframe, appData); // ritorno all'host dopo una pausa della scheda o un canale morto
+  const wsTunnel = startWsTunnel(iframe, appData); // WebSocket dell'app sul DataChannel ("websocket": true)
   iframe.addEventListener("load", () => adoptFrameIcon(iframe, appData, faviconEl, () => { syncManifest(); saveApp(appData); }));
 
   const onPopState = () => { cleanup(); onExit(); };
@@ -74,6 +76,7 @@ export function renderAppViewer(container, appData, onExit) {
 
   function cleanup() {
     watchdog.stop();
+    wsTunnel.stop();
     window.removeEventListener("message", onMessage);
     window.removeEventListener("popstate", onPopState);
     window.removeEventListener("mylan:app-meta", onMeta);
