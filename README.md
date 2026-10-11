@@ -40,8 +40,9 @@ By providing an immediate, globally valid `https://` trampoline via GitHub Pages
 
 ## App Integration & Specification
 
-Any web application or PWA can integrate with MyLAN by providing its manifest (`/.well-known/mylan.json` or `manifest.json`) and a small host-side companion that answers the encrypted handshake and bridges DataChannel requests to its HTTP server.
+Any web application or PWA can integrate with MyLAN by providing its manifest (`/.well-known/mylan.json` or `manifest.json`) and a host side that answers the encrypted handshake and bridges DataChannel requests to its HTTP server. The recommended host side is **MyLAN Host** (`host/`, [docs/HOST.md](docs/HOST.md)): one Python program on the PC serving every registered app, so the apps carry no MyLAN code.
 
+- [docs/HOST.md](docs/HOST.md): MyLAN Host - install, register an app, invite and approve a phone, forwarding and the security headers an app receives.
 - [docs/INTEGRATION.md](docs/INTEGRATION.md): how it works and how to integrate (registration, HTTPS container and viewer, host-side handshake, STUN P2P with optional host-provided TURN, CGNAT, per-app PWA install, security model, known limits).
 - [docs/APP_SPEC.md](docs/APP_SPEC.md): wire formats (DataChannel protocol, chunk framing, `postMessage` bridge).
 

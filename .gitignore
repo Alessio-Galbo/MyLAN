@@ -1,0 +1,5 @@
+# MyLAN Host (host/): local venv and per-PC state (app secrets, approved phones, invites) never committed
+host/.venv/
+host/data/
+__pycache__/
+*.pyc

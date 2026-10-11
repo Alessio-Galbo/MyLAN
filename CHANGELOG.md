@@ -4,6 +4,20 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
 
 ## [Unreleased]
 
+### Added
+- **MyLAN Host** (`host/`, [docs/HOST.md](docs/HOST.md)): one Python 3.13 program on the PC (aiortc + aiohttp in
+  `host/.venv`, pinned in `host/requirements.txt`, ~108 MB with PyAV) that pairs phones over the existing protocol
+  (invite protocol 2, return visits with nonce: no phone-side change) and forwards each app's DataChannel requests
+  to that app's local HTTP port; apps carry no MyLAN code. One invite/peer per app, each pairing bound to one app.
+  Commands: `python -m host run | invite <app> | pending | approve|reject <code> | devices [revoke <id>] |
+  apps add <url> | list | remove <id>`. Every forwarded request carries the app's secret (`X-MyLAN-Host`, name
+  configurable), the Host-chosen device id (`X-MyLAN-Device`) and `X-MyLAN-Protected: 1|0`; phone copies are
+  stripped. State in `host/data/` (git-ignored). Logic adapted from FaMiLAN's embedded host (attribution per file).
+  Not yet: WebSocket tunnel, fixed UDP port/UPnP, TURN in answers. Tests: 15 (`host/tests`, end-to-end with real
+  aiortc peers and an in-memory relay).
+- `docs/INTEGRATION.md` §2/§5: the recommended path is registering the app in MyLAN Host; embedding the host side
+  stays documented as the alternative.
+
 ## [d5727e0] - 2026-10-05 - Retry failed app icons, sharper icons
 
 ### Fixed

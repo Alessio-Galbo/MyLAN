@@ -37,6 +37,14 @@ Phone browser (HTTPS origin: GitHub Pages)                    Your host (PC, NAS
             +----------------------> ntfy.sh topic <----------------------+
 ```
 
+**Recommended host side: MyLAN Host** ([HOST.md](HOST.md)). One program on the PC, part of MyLAN, speaks
+signaling/WebRTC with the phone for every app and forwards each app's requests to its local HTTP port. Your app then
+contains **no MyLAN code**: it serves `/.well-known/mylan.json` (§3), registers once with
+`python -m host apps add http://127.0.0.1:<port>`, and recognizes forwarded requests by the per-app secret header
+(HOST.md §7). Embedding the host side in your own server (§5) remains documented as an alternative, e.g. for an
+app distributed without MyLAN Host or that needs features the Host does not carry yet (WebSocket tunnel, fixed UDP
+port, TURN in the answers).
+
 1. The host creates a one-time **invite code** (12 characters, shown as `XXXX-XXXX-XXXX`) and shares a link
    `https://<user>.github.io/MyLAN/#i=XXXXXXXXXXXX&p=2` (also accepted: `?i=`, `?code=`, `#code=`; `p=2` selects the
    invite protocol 2 of §5, a link without `p` uses protocol 1).
@@ -201,7 +209,11 @@ What your frontend should do:
 
 ## 5. What the host must implement
 
-MyLAN ships only the browser side. Your host needs a small companion (any language with a WebRTC stack, e.g.
+**Recommended: register your app in MyLAN Host** ([HOST.md](HOST.md)) and skip this section: the Host implements
+all of it once for every app on the PC, and your app keeps only its own authentication (HOST.md §7: the
+`X-MyLAN-Host` secret header, the Host-chosen `X-MyLAN-Device`, the `X-MyLAN-Protected` flag).
+
+**Alternative: embed the host side.** MyLAN's static site ships only the browser side. Your host then needs a small companion (any language with a WebRTC stack, e.g.
 `aiortc` for Python, `node-datachannel` or `werift` for Node, `pion` for Go):
 
 1. **Invite code**: 12 random characters `[A-Z0-9]`. Normalization: strip non-alphanumerics, upper-case.
