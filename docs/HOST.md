@@ -35,6 +35,7 @@ Phone (MyLAN on GitHub Pages)                     PC
 | `host/pairing.py`, `returns.py` | first pairing (protocol 2) and return visits (nonce) |
 | `host/peers.py`, `channel.py`, `wire.py` | aiortc peers, per-channel queue/limits/aborts/chunked uploads |
 | `host/forward.py`, `headers.py`, `frames.py` | HTTP forwarding, header rules, response frames |
+| `host/ws_tunnel.py`, `ws_policy.py`, `ws_conn.py`, `ws_inbound.py` | WebSocket tunnel (§6.1) |
 | `host/apps.py`, `descriptor.py`, `invites.py`, `devices.py`, `pending.py`, `store.py` | state in `data/` |
 | `host/crypto.py`, `relay.py` | envelopes, key/topic derivation, ntfy client |
 
@@ -105,8 +106,26 @@ unchanged encoding):
 * errors (JSON `{"detail": reason}` + header `x-mylan-host-reason`): unknown/removed app `404 mylan_host_unknown_app`,
   app not reachable `503 mylan_host_app_down`, no response start within 120 s `504 mylan_host_app_timeout`, bad
   method `405`, bad path (`//...` included) `400`, headers over 64 / 16 KB `431`;
-* **not yet**: the WebSocket tunnel (APP_SPEC §4.4; `ws-open` is refused with `ws-close 1008`), the fixed UDP port
-  / UPnP of INTEGRATION §6 and `ice` in the answers (TURN). Apps that need them keep their embedded host for now.
+* **not yet**: the fixed UDP port / UPnP of INTEGRATION §6 and `ice` in the answers (TURN). Apps that need them keep
+  their embedded host for now.
+
+### 6.1 WebSockets
+
+For an app whose descriptor declares `"websocket": true` (read at `apps add`; run it again after adding the flag),
+each `ws-open` of APP_SPEC §4.4 becomes a WebSocket from the Host to `ws://<base_url host>` + `path` (query
+unchanged; `wss` for an `https` base URL) with the subprotocols of the message:
+
+* **same headers as HTTP** (§7): app secret, Host-chosen device id, protected flag; the phone's copies, hop-by-hop and
+  `Sec-WebSocket-*` headers are removed. The app authorizes the upgrade as it would an HTTP request;
+* `ws-accept` carries the subprotocol the app chose; text and binary messages are relayed both ways, split into
+  `ws-msg` parts (8000 characters of text, 48000 of base64) with `more`, with the same backpressure as responses;
+* closing: the app's close code and reason reach the phone (`ws-close`); the phone's `ws-close` closes the app's
+  socket with its code (no answer); the channel closing closes every socket of it with `1001`;
+* limits: 8 sockets per pairing (beyond: `1013 mylan_host_busy`), 256 KB per message from the phone (`1009`), 64
+  messages queued towards the app (`1013`), 4 MB per message from the app, frames from the phone at most 128 KB;
+* refusals (`ws-close` instead of `ws-accept`): app without the flag `1008 mylan_host_no_websocket`, bad path or
+  subprotocols `1008`, upgrade refused by the app (any HTTP answer) `1008 mylan_host_ws_refused`, app not reachable
+  `1011 mylan_host_app_down`.
 
 ## 7. Security contract (what the app sees)
 
@@ -145,6 +164,8 @@ def via_mylan_host(headers, secret_sha256: str) -> bool | None:
 
 `host/.venv/Scripts/python -m unittest discover -s host/tests -t .` (from the repo root): crypto against the fixed
 vector of `Tools/test_invite_v2.mjs`, forwarding against a fake local app (byte-identical bodies, header injection
-and stripping, custom header names, protected flag, 404/503, chunked upload, bad requests), CLI on an isolated data
-dir, and an end-to-end pairing with real aiortc peers on the PC and an in-memory relay (approve, request, return
+and stripping, custom header names, protected flag, 404/503, chunked upload, bad requests), the WebSocket tunnel
+against the fake app's `/ws` (echo of text and binary, long messages in parts, header injection, close by either
+side, refusals, limit, channel closed, app down; also over a real peer), CLI on an isolated data dir, and an
+end-to-end pairing with real aiortc peers on the PC and an in-memory relay (approve, request, return
 visit with nonce, refused invite).

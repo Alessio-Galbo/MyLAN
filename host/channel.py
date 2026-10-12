@@ -1,9 +1,10 @@
 """Requests of one DataChannel bound to (app, device): JSON requests, aborts, chunked uploads (binary 0x42 frames,
-APP_SPEC §4.1), at most MAX_ACTIVE served at once and MAX_PENDING queued (beyond: 429), everything stopped when the
-channel closes. Adapted from FaMiLAN backend/app/services/remote/webrtc_channel_guard.py."""
+APP_SPEC §4.1), WebSockets (§4.4, ws_tunnel.py), at most MAX_ACTIVE served at once and MAX_PENDING queued (beyond:
+429), everything stopped when the channel closes. Adapted from FaMiLAN
+backend/app/services/remote/webrtc_channel_guard.py."""
 import asyncio
 
-from host import forward, frames, wire
+from host import forward, frames, wire, ws_tunnel
 
 MAX_ACTIVE, MAX_PENDING, MAX_UPLOAD = 16, 1024, 256 * 1024 * 1024
 
@@ -15,6 +16,7 @@ class ChannelServer:
         self.aborts: dict[str, asyncio.Event] = {}
         self.tasks: dict[str, asyncio.Task] = {}
         self.uploads: dict[str, tuple[dict, bytearray]] = {}
+        self.sockets: dict = {}  # tunnelled WebSockets (ws_tunnel.py)
         self.closed = False
 
     def on_message(self, raw) -> None:
@@ -32,8 +34,8 @@ class ChannelServer:
             self.uploads.pop(req_id, None)
             if req_id in self.aborts:
                 self.aborts[req_id].set()
-        elif kind == "ws-open":
-            frames.safe_send(self.channel, wire.ws_refusal(req_id))
+        elif kind in ws_tunnel.TYPES:
+            ws_tunnel.handle(self, req_id, msg)
         elif kind is None and req_id not in self.aborts and req_id not in self.uploads:
             size = msg.get("body_size")
             if not msg.get("body_chunked"):
@@ -77,6 +79,7 @@ class ChannelServer:
     def close(self) -> None:
         self.closed = True
         self.uploads.clear()
+        ws_tunnel.close_all(self)
         for evt in self.aborts.values():
             evt.set()
         for task in list(self.tasks.values()):

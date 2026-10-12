@@ -33,7 +33,3 @@ def body(msg: dict) -> bytes:
     except ValueError:
         return b""
 
-
-def ws_refusal(req_id: str) -> str:
-    """WebSocket tunnel (APP_SPEC §4.4) not carried by MyLAN Host yet: the app sees a refused socket."""
-    return json.dumps({"type": "ws-close", "id": req_id, "code": 1008, "reason": "mylan_host_no_websocket"})

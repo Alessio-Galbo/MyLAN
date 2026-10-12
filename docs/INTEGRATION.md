@@ -42,8 +42,9 @@ signaling/WebRTC with the phone for every app and forwards each app's requests t
 contains **no MyLAN code**: it serves `/.well-known/mylan.json` (§3), registers once with
 `python -m host apps add http://127.0.0.1:<port>`, and recognizes forwarded requests by the per-app secret header
 (HOST.md §7). Embedding the host side in your own server (§5) remains documented as an alternative, e.g. for an
-app distributed without MyLAN Host or that needs features the Host does not carry yet (WebSocket tunnel, fixed UDP
-port, TURN in the answers).
+app distributed without MyLAN Host or that needs features the Host does not carry yet (fixed UDP port, TURN in the
+answers). The Host carries WebSockets too (HOST.md §6.1): the app only declares `"websocket": true` and serves a
+normal WebSocket endpoint.
 
 1. The host creates a one-time **invite code** (12 characters, shown as `XXXX-XXXX-XXXX`) and shares a link
    `https://<user>.github.io/MyLAN/#i=XXXXXXXXXXXX&p=2` (also accepted: `?i=`, `?code=`, `#code=`; `p=2` selects the
@@ -267,7 +268,8 @@ all of it once for every app on the PC, and your app keeps only its own authenti
    of APP_SPEC §4.4 on the same channel: run your WebSocket handler with the identity of the peer (as for HTTP),
    answer `ws-accept` or `ws-close`, split long messages with `more`, apply backpressure (`bufferedAmount`) and close
    every connection of a channel when it closes. Allow only your WebSocket paths and cap the connections and the
-   message size per channel.
+   message size per channel. With MyLAN Host all of this is done by the Host (HOST.md §6.1): the app serves an
+   ordinary WebSocket endpoint and checks the same headers as for HTTP.
 
 ---
 

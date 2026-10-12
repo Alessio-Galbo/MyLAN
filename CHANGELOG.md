@@ -13,8 +13,18 @@ All notable changes to MyLAN. The git history was reset to a single "Initial com
   apps add <url> | list | remove <id>`. Every forwarded request carries the app's secret (`X-MyLAN-Host`, name
   configurable), the Host-chosen device id (`X-MyLAN-Device`) and `X-MyLAN-Protected: 1|0`; phone copies are
   stripped. State in `host/data/` (git-ignored). Logic adapted from FaMiLAN's embedded host (attribution per file).
-  Not yet: WebSocket tunnel, fixed UDP port/UPnP, TURN in answers. Tests: 15 (`host/tests`, end-to-end with real
+  Not yet: fixed UDP port/UPnP, TURN in answers. Tests: 15 (`host/tests`, end-to-end with real
   aiortc peers and an in-memory relay).
+- MyLAN Host carries the **WebSocket tunnel** (APP_SPEC §4.4, [HOST.md §6.1](docs/HOST.md)) for apps declaring
+  `"websocket": true`: `ws-open` opens a WebSocket to the app's local URL (path, query and subprotocols from the
+  message) with the same injected headers as HTTP (secret, device id, protected flag; phone copies and
+  `Sec-WebSocket-*` stripped); text/binary relayed both ways in `ws-msg` parts under 64 KB with backpressure; close
+  codes passed both ways, channel closed -> `1001` to the app; limits 8 sockets per pairing (`1013`), 256 KB per
+  phone message (`1009`), 64 queued (`1013`); app down `1011`, upgrade refused `1008`. Files `host/ws_tunnel.py`,
+  `ws_policy.py`, `ws_conn.py`, `ws_inbound.py` (adapted from FaMiLAN `webrtc_ws_*.py`, attribution per file);
+  `wire.ws_refusal` removed, `frames.drain` made public. Tests: 21 (+6: `test_ws.py`, `test_ws_refusals.py`,
+  `test_ws_e2e.py` with a real aiortc peer; fake app `/ws` in `host/tests/fake_ws.py`; shared bases `ws_case.py`,
+  `paired_case.py`).
 - `docs/INTEGRATION.md` §2/§5: the recommended path is registering the app in MyLAN Host; embedding the host side
   stays documented as the alternative.
 

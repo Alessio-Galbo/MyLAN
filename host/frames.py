@@ -35,7 +35,7 @@ def reply_status(channel, req_id: str, status: int, reason: str) -> None:
     safe_send(channel, json.dumps({"id": req_id, "type": "chunk", "data": base64.b64encode(body).decode(), "more": False}))
 
 
-async def _drain(channel, abort: asyncio.Event) -> None:
+async def drain(channel, abort: asyncio.Event) -> None:
     waited = 0.0
     while getattr(channel, "bufferedAmount", 0) > (LOW_WATER if waited else HIGH_WATER):
         if abort.is_set() or not is_open(channel) or waited >= STALL_S:
@@ -50,7 +50,7 @@ async def send_body(channel, req_id: str, data: bytes, more: bool, abort: asynci
     media = str(getattr(channel, "label", "")).startswith("mylan-media")
     size = CHUNK if media else JSON_CHUNK
     for i in range(0, max(len(data), 1), size):
-        await _drain(channel, abort)
+        await drain(channel, abort)
         if abort.is_set():
             return
         part, last = data[i:i + size], i + size >= len(data) and not more
